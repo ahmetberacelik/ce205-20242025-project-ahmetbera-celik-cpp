@@ -101,3 +101,40 @@ int planMeals(const char* pathFileRecipes, const char* pathFileIngredients, doub
     enterToContinue();
     return 1;
 }
+
+
+/**
+ * @brief Lists all recipes with their prices
+ * @param pathFileRecipes Path to the file containing recipes
+ * @param pathFileIngredients Path to the file containing ingredients
+ * @return Returns 1 if successful, 0 if no recipes found
+ */
+int listRecipesWithPrices(const char* pathFileRecipes, const char* pathFileIngredients) {
+    Recipe recipes[MAX_RECIPES];
+    Ingredient* ingredientList = loadIngredientsFromFile(pathFileIngredients);
+    int recipeCount = loadRecipesFromFile(pathFileRecipes, recipes, MAX_RECIPES);
+
+    if (recipeCount == 0) { printf("\nNo recipes found.\n\n"); return 0; }
+
+    for (int i = 0; i < recipeCount; i++) {
+        double recipeCost = 0;
+        Ingredient* currentIngredient = ingredientList;
+        for (int j = 0; j < recipes[i].ingredientCount; j++) {
+            while (currentIngredient != NULL) {
+                if (currentIngredient->id == recipes[i].ingredients[j]) { recipeCost += currentIngredient->price; break; }currentIngredient = currentIngredient->next;
+            }
+            currentIngredient = ingredientList; // Reset pointer to beginning of ingredient list
+        }
+        printf("ID: %d | Name: %s | Price: %.2f TL\n", i + 1, recipes[i].name, recipeCost);
+    }
+    printf("\n");
+
+    // Clean up ingredient list memory
+    while (ingredientList != NULL) {
+        Ingredient* temp = ingredientList;
+        ingredientList = ingredientList->next;
+        free(temp);
+    }
+    return 1;
+}
+
