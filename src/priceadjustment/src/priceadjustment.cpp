@@ -78,6 +78,11 @@ bool isPrime(int number) {
 	}
 	return true;
 }
+/**
+ * @brief Finds the next prime number greater than or equal to a given number.
+ * @param number The starting number.
+ * @return The next prime number.
+ */
 
 int findNextPrime(int number) {
 	while (!isPrime(number)) {
@@ -156,6 +161,7 @@ Ingredient* progressiveOverflowSearch(Ingredient* ingredients, int totalIngredie
 	}
 	return NULL;
 }
+
 /**
  * @brief Searches for an ingredient using linear quotient.
  * @param ingredients Array of ingredients.
@@ -382,4 +388,83 @@ int adjustIngredientPrice(const char* pathFileIngredients) {
 	// Free allocated memory
 	free(ingredients);
 	return 0;
+}
+/**
+ * @brief Resets the prices of all ingredients.
+ * @param pathFileIngredients Path to the ingredient file.
+ * @return 1 if successful.
+ */
+
+int resetIngredientPrice(const char* pathFileIngredients) {
+	clearScreen();
+	Ingredient* ingredients;
+	int totalIngredient = ConvertDoubleLinkToArray(pathFileIngredients, &ingredients);
+
+	if (totalIngredient == -1) {
+		return 0;
+	}
+
+	// Show the current prices of all ingredients
+	PrintIngredientsToConsole(pathFileIngredients);
+
+	//Choose one of them to reset the price
+	int ingredientId;
+	printf("Enter Ingredient Id: ");
+	scanf("%d", &ingredientId);
+	getchar();
+
+	//Find the ingredient and reset the price
+	for (int i = 0; i < totalIngredient; i++) { if (ingredients[i].id == ingredientId) { ingredients[i].price = 0.0;break; } }
+
+	// Save the updated ingredients to file
+	FILE* file = fopen(pathFileIngredients, "wb");
+	if (!file) { printf("File could not be opened");getchar();enterToContinue();return 0; }
+	fwrite(ingredients, sizeof(Ingredient), totalIngredient, file);
+	fclose(file);
+
+	printf("The ingredient price was successfully reset\n");
+	enterToContinue();
+
+	// Free allocated memory
+	free(ingredients);
+	return 1;
+}
+/**
+ * @brief Displays a menu for adjusting ingredient prices.
+ * @param pathFileIngredients Path to the ingredient file.
+ * @return 1 on exit.
+ */
+int AdjustIngredientPriceMenu(const char* pathFileIngredients) {
+	int choice;
+	while (1) {
+		clearScreen();
+		printf("\n+--------------------------------------+\n");
+		printf("|           PRICE ADJUSTMENT MENU      |\n");
+		printf("+--------------------------------------+\n");
+		printf("| 1. Adjust Ingredient Price           |\n");
+		printf("| 2. Reset Price                       |\n");
+		printf("| 3. Exit                              |\n");
+		printf("+--------------------------------------+\n");
+		printf("Enter your choice: ");
+
+
+		choice = getInput();
+		if (choice == -2) { handleInputError();enterToContinue();continue; }
+		switch (choice) {
+		case 1:
+			adjustIngredientPrice(pathFileIngredients);
+			break;
+		case 2:
+			resetIngredientPrice(pathFileIngredients);
+			break;
+		case 3:
+			return 1;
+		default:
+			clearScreen();
+			printf("Invalid choice. Please try again.\n");
+			enterToContinue();
+			break;
+
+		}
+	}
 }
