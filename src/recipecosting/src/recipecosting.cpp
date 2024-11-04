@@ -792,3 +792,117 @@ void traverseRecipesDFS(const char* pathFileRecipes, const char* pathFileIngredi
 		}
 	}
 }
+
+
+/**
+ * @brief Analyzes ingredient usage across all recipes using BFS or DFS.
+ *
+ * @param pathFileRecipes File path to load the recipes.
+ * @param pathFileIngredients File path to load the ingredients data.
+ */
+void analyzeIngredientUsage(const char* pathFileRecipes, const char* pathFileIngredients) {
+	int choice;
+	clearScreen();
+	printf("How would you like to analyze the ingredients used in all recipes?\n");
+	printf("1) BFS (Breadth-First Search)\n");
+	printf("2) DFS (Depth-First Search)\n");
+	printf("Enter your choice (1-2): ");
+	choice = getInput();
+
+	if (choice == 1) {
+		clearScreen();
+		traverseRecipesBFS(pathFileRecipes, pathFileIngredients);
+	}
+	else if (choice == 2) {
+		clearScreen();
+		traverseRecipesDFS(pathFileRecipes, pathFileIngredients);
+	}
+	else {
+		printf("Invalid choice. Returning to menu.\n");
+	}
+	enterToContinue();
+}
+
+/**
+ * @brief Displays the recipe costing menu and manages user interactions for creating, editing, and analyzing recipes.
+ *
+ * @param pathFileIngredients File path to the ingredients data.
+ * @param pathFileRecipes File path to the recipes data.
+ * @return Always returns 1 when exiting the menu.
+ */
+int recipeCostingMenu(const char* pathFileIngredients, const char* pathFileRecipes) {
+	struct BPlusTreeNode* bptRoot = createNode(1);
+	Recipe recipes[MAX_RECIPES];
+	int recipeCount = loadRecipesFromFile(pathFileRecipes, recipes, MAX_RECIPES);
+	for (int i = 0; i < recipeCount; ++i) {
+		insert(recipes[i].category, &recipes[i], &bptRoot);
+	}
+
+	int choice;
+	while (1) {
+		clearScreen();
+		printf("+--------------------------------------+\n");
+		printf("|           RECIPE COSTING MENU        |\n");
+		printf("+--------------------------------------+\n");
+		printf("| 1. Create Recipe                     |\n");
+		printf("| 2. Edit Recipe                       |\n");
+		printf("| 3. Calculate Recipe Cost             |\n");
+		printf("| 4. Search Recipe by Category         |\n");
+		printf("| 5. Analyze Ingredient Usage          |\n");
+		printf("| 6. Exit                              |\n");
+		printf("+--------------------------------------+\n");
+		printf("Enter your choice: ");
+
+
+		choice = getInput();
+		if (choice == -2) {
+			handleInputError(); enterToContinue(); continue;
+		}
+
+		switch (choice) {
+		case 1:
+			createRecipe(pathFileIngredients, pathFileRecipes);
+			recipeCount = loadRecipesFromFile(pathFileRecipes, recipes, MAX_RECIPES);
+			bptRoot = createNode(1); // Reset the tree to avoid duplicate entries
+			for (int i = 0; i < recipeCount; ++i) {
+				insert(recipes[i].category, &recipes[i], &bptRoot);
+			}
+			break;
+		case 2:
+			editRecipe(pathFileRecipes, pathFileIngredients);
+			recipeCount = loadRecipesFromFile(pathFileRecipes, recipes, MAX_RECIPES);
+			bptRoot = createNode(1); // Reset the tree to avoid duplicate entries
+			for (int i = 0; i < recipeCount; ++i) {
+				insert(recipes[i].category, &recipes[i], &bptRoot);
+			}
+			break;
+		case 3:
+			calculateRecipeCost(pathFileRecipes, pathFileIngredients);
+			break;
+		case 4: {
+			int category;
+			printf("Enter category to search (1: Soup, 2: Appetizer, 3: Main Course, 4: Dessert): ");
+			category = getInput();
+			if (category < 1 || category > 4) {
+				printf("Invalid category choice.\n");
+				enterToContinue();
+			}
+			else {
+				search(category, bptRoot);
+				enterToContinue();
+			}
+			break;
+		}
+		case 5:
+			analyzeIngredientUsage(pathFileRecipes, pathFileIngredients);
+			break;
+		case 6:
+			return 1;
+		default:
+			clearScreen();
+			printf("Invalid choice. Please try again.\n");
+			enterToContinue();
+			break;
+		}
+	}
+}
