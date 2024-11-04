@@ -467,4 +467,5 @@ int AdjustIngredientPriceMenu(const char* pathFileIngredients) {
 
 		}
 	}
+
 }
