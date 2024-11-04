@@ -162,9 +162,112 @@ TEST_F(UserauthenticationTest, printGuestMenuTest) {
 	int result = printGuestMenu();
 	EXPECT_EQ(result, 1);
 }
+TEST_F(UserauthenticationTest, getNewUserIdTest_EmptyUsers) {
+	User users[1];
+	int result = getNewUserId(users, 0);
+	EXPECT_EQ(result, 1);
+}
 
+TEST_F(UserauthenticationTest, getNewUserIdTest_WithUsers) {
+	User users[1];
+	users[0].id = 5;
+	int result = getNewUserId(users, 1);
+	EXPECT_EQ(result, 6);
+}
 
+TEST_F(UserauthenticationTest, guestOperationsTest_ExitChoice) {
+	simulateUserInput("3\n");
 
+	int result = guestOperations(pathFileIngredients, "testRecipes.bin");
+
+	resetStdinStdout();
+
+	EXPECT_EQ(result, 0);
+}
+
+TEST_F(UserauthenticationTest, userOperationsTest_ExitChoice) {
+	simulateUserInput("5\n");
+
+	int result = userOperations(pathFileIngredients, "testRecipes.bin");
+
+	resetStdinStdout();
+
+	EXPECT_EQ(result, 0);
+}
+
+TEST_F(UserauthenticationTest, RegisterUser_Success) {
+	User testUser;
+	strcpy(testUser.email, "newuser@example.com");
+	strcpy(testUser.password, "password123");
+
+	// Ensure test file is reset
+	FILE* file = fopen(pathFileUsers, "wb");
+	int userCount = 0;
+	fwrite(&userCount, sizeof(int), 1, file);
+	fclose(file);
+
+	// Simulate pressing enter
+	simulateUserInput("\n");
+
+	int result = registerUser(testUser, pathFileUsers);
+
+	resetStdinStdout();
+
+	EXPECT_EQ(result, 1);
+}
+
+TEST_F(UserauthenticationTest, RegisterUser_UserAlreadyExists) {
+	User existingUser;
+	strcpy(existingUser.email, "existinguser@example.com");
+	strcpy(existingUser.password, "password123");
+
+	// Write existing user to test file
+	FILE* file = fopen(pathFileUsers, "wb");
+	int userCount = 1;
+	fwrite(&userCount, sizeof(int), 1, file);
+	fwrite(&existingUser, sizeof(User), 1, file);
+	fclose(file);
+
+	User testUser;
+	strcpy(testUser.email, "existinguser@example.com");
+	strcpy(testUser.password, "newpassword456");
+
+	// Simulate pressing enter
+	simulateUserInput("\n");
+
+	int result = registerUser(testUser, pathFileUsers);
+
+	resetStdinStdout();
+
+	EXPECT_EQ(result, 0);
+}
+TEST_F(UserauthenticationTest, mainMenuShouldEnterEveryCase) {
+	simulateUserInput("qwe\n\n\n6\n\n2\n\n\n\n\n\n1\n\n\n\n5\n3\n3\n4\n");
+
+	int result = mainMenu(pathFileUsers, pathFileIngredients, pathFileRecieps);
+
+	resetStdinStdout();
+
+	EXPECT_EQ(result, 0);
+}
+TEST_F(UserauthenticationTest, userOperationsShouldEnterEveryCase) {
+	simulateUserInput("qwe\n\n\n6\n\n1\n5\n\n2\n6\n3\n3\n4\n123\n3\n5\n");
+
+	int result = userOperations(pathFileIngredients, pathFileRecieps);
+
+	resetStdinStdout();
+
+	EXPECT_EQ(result, 0);
+}
+TEST_F(UserauthenticationTest, guestOperationsShouldEnterEveryCase) {
+	simulateUserInput("qwe\n\n\n6\n\n1\n\n\n2\n\n3\n");
+
+	int result = guestOperations(pathFileIngredients, pathFileRecieps);
+
+	resetStdinStdout();
+
+	EXPECT_EQ(result, 0);
+}
 
 /**
  * @brief The main function of the test program.
@@ -178,6 +281,6 @@ int main(int argc, char** argv) {
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 #else
-	return 0;
+	return 0;
 #endif
 }
