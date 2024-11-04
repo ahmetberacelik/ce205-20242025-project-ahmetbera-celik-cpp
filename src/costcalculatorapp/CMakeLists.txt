@@ -21,11 +21,15 @@ source_group("src" FILES ${APP_SOURCES})
 add_executable(${APPNAME} ${APP_HEADERS} ${APP_SOURCES}) # for dynamic library use SHARED
 
 target_include_directories(${APPNAME} PUBLIC
-						   ${CMAKE_CURRENT_SOURCE_DIR}/../costcalculator/header
+						   ${CMAKE_CURRENT_SOURCE_DIR}/../userauthentication/header
+						   ${CMAKE_CURRENT_SOURCE_DIR}/../ingredientmanagement/header
+						   ${CMAKE_CURRENT_SOURCE_DIR}/../recipecosting/header
+						   ${CMAKE_CURRENT_SOURCE_DIR}/../budgetplanner/header
+						   ${CMAKE_CURRENT_SOURCE_DIR}/../priceadjustment/header
 						   ${CMAKE_CURRENT_SOURCE_DIR}/header)
 
 # Add any dependencies or compile options specific to lock6g
-target_link_libraries(${APPNAME} PRIVATE costcalculator)
+target_link_libraries(${APPNAME} PRIVATE userauthentication ingredientmanagement recipecosting priceadjustment budgetplanner)
 
 install(TARGETS ${APPNAME}
         LIBRARY DESTINATION lib

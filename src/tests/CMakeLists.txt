@@ -31,9 +31,27 @@ include_directories(${GTEST_DIR}/googletest/include)
 # Include the Google Test framework
 # include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-
-# Costcalculator tests
-if(ENABLE_COSTCALCULATOR)
-	add_subdirectory(costcalculator)
+# USERAUTHENTICATION tests
+if(ENABLE_USERAUTHENTICATION)
+	add_subdirectory(userauthentication)
 endif()
 
+# INGREDIENTMANAGEMENT tests
+if(ENABLE_INGREDIENTMANAGEMENT)
+	add_subdirectory(ingredientmanagement)
+endif()
+
+# RECIPECOSTING tests
+if(ENABLE_RECIPECOSTING)
+	add_subdirectory(recipecosting)
+endif()
+
+# PRICEADJUSTMENT tests
+if(ENABLE_PRICEADJUSTMENT)
+	add_subdirectory(priceadjustment)
+endif()
+
+# BUDGETPLANNER tests
+if(ENABLE_BUDGETPLANNER)
+	add_subdirectory(budgetplanner)
+endif()

@@ -1,6 +1,6 @@
 /**
  * @file costcalculatorapp.h
- * @brief Costcalculator Application header file
+ * @brief userauthentication Application header file
  *
  */
 

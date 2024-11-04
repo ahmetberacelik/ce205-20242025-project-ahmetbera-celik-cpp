@@ -56,11 +56,11 @@ python3 -m coverxygen --xml-dir ./docs/doxygentestlinux/xml --src-dir ./ --forma
 
 
 echo "Run Documentation Coverage Report Generator for Library"
-reportgenerator "-title:Costcalculator Library Documentation Coverage Report (Linux)" "-reports:**/lcov_doxygen_lib_linux.info" "-targetdir:docs/coverxygenliblinux" "-reporttypes:Html" "-filefilters:-*.md;-*.xml;-*[generated];-*build*" "-historydir:report_doc_lib_hist_linux"
+reportgenerator "-title:userauthentication Library Documentation Coverage Report (Linux)" "-reports:**/lcov_doxygen_lib_linux.info" "-targetdir:docs/coverxygenliblinux" "-reporttypes:Html" "-filefilters:-*.md;-*.xml;-*[generated];-*build*" "-historydir:report_doc_lib_hist_linux"
 reportgenerator "-reports:**/lcov_doxygen_lib_linux.info" "-targetdir:assets/doccoverageliblinux" "-reporttypes:Badges" "-filefilters:-*.md;-*.xml;-*[generated];-*build*"
 
 echo "Run Documentation Coverage Report Generator for Unit Tests"
-reportgenerator "-title:Costcalculator Library Test Documentation Coverage Report (Linux)" "-reports:**/lcov_doxygen_test_linux.info" "-targetdir:docs/coverxygentestlinux" "-reporttypes:Html" "-filefilters:-*.md;-*.xml;-*[generated];-*build*" "-historydir:report_doc_test_hist_linux"
+reportgenerator "-title:userauthentication Library Test Documentation Coverage Report (Linux)" "-reports:**/lcov_doxygen_test_linux.info" "-targetdir:docs/coverxygentestlinux" "-reporttypes:Html" "-filefilters:-*.md;-*.xml;-*[generated];-*build*" "-historydir:report_doc_test_hist_linux"
 reportgenerator "-reports:**/lcov_doxygen_test_linux.info" "-targetdir:assets/doccoveragetestlinux" "-reporttypes:Badges" "-filefilters:-*.md;-*.xml;-*[generated];-*build*"
 
 
@@ -74,14 +74,14 @@ cmake --install build_linux --strip
 echo "Test CMAKE"
 cd build_linux
 # ctest -C Debug -j4 --output-on-failure --output-log test_results_linux.log
-ctest -C Debug -j4 --output-junit testResults_linux.xml --output-log test_results_linux.log
+ctest -C Debug -j1 --output-junit testResults_linux.xml --output-log test_results_linux.log
 junit2html testResults_linux.xml testResults_linux.html
 cp testResults_linux.html "../docs/testresultslinux/index.html"
 cd ..
 
 echo Running Test Executable
 
-./publish_linux/bin/costcalculator_tests
+./publish_linux/bin/userauthentication_tests
 ./publish_linux/bin/costcalculatorapp
 
 echo "Generate Test Coverage Data"
@@ -92,8 +92,8 @@ lcov --rc lcov_branch_coverage=1 --remove coverage_linux.info 'tests/*' --output
 lcov --rc lcov_branch_coverage=1 --list coverage_linux.info
 
 echo "Generate Test Report"
-reportgenerator "-title:Costcalculator Library Unit Test Coverage Report (Linux)" "-reports:**/coverage_linux.info" "-targetdir:docs/coveragereportliblinux" "-reporttypes:Html" "-sourcedirs:src/costcalculator/src;src/costcalculator/header;src/costcalculatorapp/src;src/costcalculatorapp/header;src/tests/costcalculator" "-filefilters:-*minkernel\*;-*gtest*;-*a\_work\*;-*gtest-*;-*gtest.cc;-*gtest.h;-*build*" "-historydir:report_test_hist_linux"
-reportgenerator "-reports:**/coverage_linux.info" "-targetdir:assets/codecoverageliblinux" "-reporttypes:Badges" "-sourcedirs:src/costcalculator/src;src/costcalculator/header;src/costcalculatorapp/src;src/costcalculatorapp/header;src/tests/costcalculator" "-filefilters:-*minkernel\*;-*gtest*;-*a\_work\*;-*gtest-*;-*gtest.cc;-*gtest.h;-*build*"
+reportgenerator "-title:userauthentication Library Unit Test Coverage Report (Linux)" "-reports:**/coverage_linux.info" "-targetdir:docs/coveragereportliblinux" "-reporttypes:Html" "-sourcedirs:src/userauthentication/src;src/userauthentication/header;src/costcalculatorapp/src;src/costcalculatorapp/header;src/tests/userauthentication" "-filefilters:-*minkernel\*;-*gtest*;-*a\_work\*;-*gtest-*;-*gtest.cc;-*gtest.h;-*build*" "-historydir:report_test_hist_linux"
+reportgenerator "-reports:**/coverage_linux.info" "-targetdir:assets/codecoverageliblinux" "-reporttypes:Badges" "-sourcedirs:src/userauthentication/src;src/userauthentication/header;src/costcalculatorapp/src;src/costcalculatorapp/header;src/tests/userauthentication" "-filefilters:-*minkernel\*;-*gtest*;-*a\_work\*;-*gtest-*;-*gtest.cc;-*gtest.h;-*build*"
 
 echo "Copy the 'assets' folder and its contents to 'docs' recursively"
 cp -R assets "docs/assets"
@@ -111,12 +111,12 @@ tar -czvf release_linux/linux-publish-binaries.tar.gz -C publish_linux .
 
 echo "Package Publish Linux Binaries"
 mkdir -p build_linux/build/Release
-cp -R src/costcalculator/header build_linux/build/Release
+cp -R src/userauthentication/header build_linux/build/Release
 tar -czvf release_linux/linux-release-binaries.tar.gz -C build_linux/build/Release .
 
 echo "Package Publish Debug Linux Binaries"
 mkdir -p build_linux/build/Debug
-cp -R src/costcalculator/header build_linux/build/Debug
+cp -R src/userauthentication/header build_linux/build/Debug
 tar -czvf release_linux/linux-debug-binaries.tar.gz -C build_linux/build/Debug .
 
 echo "Package Publish Test Coverage Report"

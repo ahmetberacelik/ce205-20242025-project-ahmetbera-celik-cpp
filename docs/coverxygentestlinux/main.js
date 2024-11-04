@@ -221,7 +221,6 @@ var assemblies = [
   {
     "name": "Default",
     "classes": [
-      { "name": "/mnt/c/Users/Bera/Desktop/ce205-final-ahmetbera-celik-yakup-eroglu-hasanbasri-taskin-enes-koy-cpp/src/tests/costcalculator/costcalculator_test.cpp", "rp": "_mnt_c_Users_Bera_Desktop_ce205_final_ahmetbera_ces_costcalculator_costcalculator_test.cpp.html", "cl": 1, "ucl": 4, "cal": 5, "tl": 31, "cb": 0, "tb": 0, "cm": 0, "tm": 0, "lch": [20], "bch": [], "mch": [], "hc": [{ "et": "11/04/2024 - 12:51:12", "cl": 1, "ucl": 4, "cal": 5, "tl": 31, "lcq": 20, "cb": 0, "tb": 0, "bcq": 0, "cm": 0, "tm": 0, "mcq": 0 }], "metrics": { } },
     ]},
 ];
 

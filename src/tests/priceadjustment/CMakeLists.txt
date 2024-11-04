@@ -1,6 +1,6 @@
 # tests/aka5g/CMakeLists.txt
 set(ROOT src/tests)
-set(TESTNAME costcalculator)
+set(TESTNAME priceadjustment)
 set(EXENAME ${TESTNAME}_tests)
 
 message(STATUS "[${ROOT}/${TESTNAME}] Module Tests...")
@@ -25,11 +25,15 @@ add_executable(${EXENAME} ${LIB_HEADERS} ${LIB_SOURCES})
 
 # Add included headers
 target_include_directories(${EXENAME} PUBLIC
-						   ${CMAKE_CURRENT_SOURCE_DIR}/../../costcalculator/header
+						   ${CMAKE_CURRENT_SOURCE_DIR}/../userauthentication/header
+						   ${CMAKE_CURRENT_SOURCE_DIR}/../ingredientmanagement/header
+						   ${CMAKE_CURRENT_SOURCE_DIR}/../recipecosting/header
+						   ${CMAKE_CURRENT_SOURCE_DIR}/../budgetplanner/header
+						   ${CMAKE_CURRENT_SOURCE_DIR}/../priceadjustment/header
 						   ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Add any dependencies or compile options specific to aka5g tests
-target_link_libraries(${EXENAME} PRIVATE costcalculator gtest gtest_main)
+target_link_libraries(${EXENAME} PRIVATE priceadjustment userauthentication ingredientmanagement recipecosting budgetplanner gtest gtest_main)
 
 # Register the test with CTest
 # add_test(NAME ${EXENAME} COMMAND ${EXENAME})

@@ -39,16 +39,29 @@ set(CRYPTOPP_INSTALL ON)
 set(CRYPTOPP_BUILD_SHARED OFF)
 set(CRYPTOPP_USE_MASTER_BRANCH FALSE)
 
-option(ENABLE_COSTCALCULATOR "Enable Costcalculator Module" ON)
-option(ENABLE_COSTCALCULATOR_APP "Enable Costcalculator Application" ON)
+option(ENABLE_USERAUTHENTICATION "Enable User Authentication Module" ON)
+option(ENABLE_INGREDIENTMANAGEMENT "Enable Ingredient Management Module" ON)
+option(ENABLE_RECIPECOSTING "Enable Recipe Costing Module" ON)
+option(ENABLE_PRICEADJUSTMENT "Enable Price Adjustment Module" ON)
+option(ENABLE_BUDGETPLANNER "Enable Budget Planner Module" ON)
+option(ENABLE_COSTCALCULATOR_APP "Enable Cost Calculator Application" ON)
 option(ENABLE_TESTS "Enable All Tests" ON)
 
 # Configure tests
-add_compile_definitions(ENABLE_COSTCALCULATOR_TEST)
+add_compile_definitions(ENABLE_USERAUTHENTICATION_TEST)
+add_compile_definitions(ENABLE_INGREDIENTMANAGEMENT_TEST)
+add_compile_definitions(ENABLE_RECIPECOSTING_TEST)
+add_compile_definitions(ENABLE_PRICEADJUSTMENT_TEST)
+add_compile_definitions(ENABLE_BUDGETPLANNER_TEST)
+
 
 
 # Configure logs
-add_compile_definitions(ENABLE_COSTCALCULATOR_LOGGER)
+add_compile_definitions(ENABLE_USERAUTHENTICATION_LOGGER)
+add_compile_definitions(ENABLE_INGREDIENTMANAGEMENT_LOGGER)
+add_compile_definitions(ENABLE_RECIPECOSTING_LOGGER)
+add_compile_definitions(ENABLE_PRICEADJUSTMENT_LOGGER)
+add_compile_definitions(ENABLE_BUDGETPLANNER_LOGGER)
 
 # Set the output directories for Debug and Release configurations
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/build/Debug)
@@ -91,9 +104,30 @@ else()
 endif()
 
 
-# Logger submodule
-if(ENABLE_COSTCALCULATOR)
-	add_subdirectory(${ROOT}/costcalculator)
+
+# userauthentication submodule
+if(ENABLE_USERAUTHENTICATION)
+	add_subdirectory(${ROOT}/userauthentication)
+endif()
+
+# ingredientmanagement submodule
+if(ENABLE_INGREDIENTMANAGEMENT)
+	add_subdirectory(${ROOT}/ingredientmanagement)
+endif()
+
+# recipecosting submodule
+if(ENABLE_RECIPECOSTING)
+	add_subdirectory(${ROOT}/recipecosting)
+endif()
+
+# priceadjustment submodule
+if(ENABLE_PRICEADJUSTMENT)
+	add_subdirectory(${ROOT}/priceadjustment)
+endif()
+
+# budgetplanner submodule
+if(ENABLE_BUDGETPLANNER)
+	add_subdirectory(${ROOT}/budgetplanner)
 endif()
 
 # BigInteger for Crypto submodule
