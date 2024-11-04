@@ -9,6 +9,8 @@
  // Standard Libraries
 #include "stdio.h"
 #include "../../userauthentication/header/userauthentication.h"
+#include "../../ingredientmanagement/header/ingredientmanagement.h"// Adjust this include path based on your project structure
+
 /**
  * @brief Main program function
  *
@@ -18,6 +20,10 @@
  * @return int Program exit status (0: success)
  */
 int main() {
+	const char* pathFileUsers = "users.bin";
+	const char* pathFileIngredients = "ingredient.bin";
+	const char* pathFileRecipes = "recipes.bin";
 
-	return 0;
+	mainMenu(pathFileUsers, pathFileIngredients, pathFileRecipes);
+	return 0;
 }
