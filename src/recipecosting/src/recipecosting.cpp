@@ -292,3 +292,311 @@ int editRecipe(const char* pathFileRecipes, const char* pathFileIngredients) {
 	enterToContinue();
 	return 0; // Indicate success
 }
+
+
+/**
+ * @brief Calculates the cost of a recipe by summing the prices of its ingredients.
+ *
+ * @param pathFileRecipes File path to load the recipes.
+ * @param pathFileIngredients File path to load the ingredients data.
+ */
+int calculateRecipeCost(const char* pathFileRecipes, const char* pathFileIngredients) {
+	Recipe recipes[MAX_RECIPES];
+	Ingredient* ingredientList = loadIngredientsFromFile(pathFileIngredients);
+	int recipeCount = loadRecipesFromFile(pathFileRecipes, recipes, MAX_RECIPES);
+
+	if (recipeCount == 0) {
+		printf("No recipes available to calculate cost.\n");
+		enterToContinue();
+		return -1; // Indicate no recipes available
+	}
+
+	// Step 1: List recipes
+	clearScreen();
+	printf("Available Recipes:\n");
+	listRecipesName(pathFileRecipes);
+
+	// Step 2: Select recipe by ID
+	int recipeId;
+	printf("Enter the ID of the recipe to calculate cost: ");
+	recipeId = getInput();
+
+	if (recipeId < 1 || recipeId > recipeCount) {
+		printf("Invalid recipe ID.\n");
+		enterToContinue();
+		return -2; // Indicate invalid recipe ID
+	}
+
+	Recipe* selectedRecipe = &recipes[recipeId - 1]; // Adjusting for 0-based indexing
+
+	// Step 3: Calculate total cost using Sparse Matrix
+	double totalCost = 0.0;
+	SparseMatrixNode* costMatrix = NULL;
+	Ingredient* currentIngredient = ingredientList;
+	for (int i = 0; i < selectedRecipe->ingredientCount; i++) {
+		while (currentIngredient != NULL) {
+			if (currentIngredient->id == selectedRecipe->ingredients[i]) {
+				insertSparseMatrixNode(&costMatrix, recipeId, currentIngredient->id, currentIngredient->price);
+				totalCost += currentIngredient->price;
+				break;
+			}
+			currentIngredient = currentIngredient->next;
+		}
+		currentIngredient = ingredientList; // Reset pointer to beginning of ingredient list
+	}
+
+	printf("The total cost of the recipe '%s' is: $%.2f\n", selectedRecipe->name, totalCost);
+	enterToContinue();
+
+	// Free ingredient list memory
+	while (ingredientList != NULL) {
+		Ingredient* temp = ingredientList;
+		ingredientList = ingredientList->next;
+		free(temp);
+	}
+
+	// Free sparse matrix memory
+	freeSparseMatrix(costMatrix);
+	return 0; // Indicate success
+}
+
+/**
+ * @brief Prints all recipes to the console.
+ *
+ * @param pathFileRecipes File path to load the recipes from.
+ */
+int printRecipesToConsole(const char* pathFileRecipes) {
+	FILE* file = fopen(pathFileRecipes, "r");
+	if (!file) {
+		printf("Error opening recipe file.\n");
+		return -1; // Indicate error opening file
+	}
+
+	Ingredient* ingredientList = loadIngredientsFromFile("ingredient.bin");
+	if (!ingredientList) {
+		printf("Error loading ingredients.\n"); fclose(file); return -2; // Indicate error loading ingredients
+	}
+
+	printf("\nAvailable Recipes:\n");
+	char line[MAX_NAME_LENGTH];
+	int id = 1;
+	while (fgets(line, sizeof(line), file)) {
+		// Displaying the recipe name
+		printf("%d) %s", id++, line);
+
+		// Displaying the recipe category
+		fgets(line, sizeof(line), file);
+		int category = atoi(line);
+		switch (category) {
+		case 1:
+			printf("   Category: Soup\n");
+			break;
+		case 2:
+			printf("   Category: Appetizer\n");
+			break;
+		case 3:printf("   Category: Main Course\n"); break;
+		case 4:printf("   Category: Dessert\n"); break;
+		default:printf("   Category: Unknown\n"); break;
+		}
+
+		// Displaying the ingredients
+		fgets(line, sizeof(line), file);
+		printf("   Ingredients: ");
+		char* token = strtok(line, " ");
+		while (token != NULL) {
+			int ingredientId = atoi(token);
+			Ingredient* current = ingredientList;
+			while (current != NULL) {
+				if (current->id == ingredientId) {
+					printf("%s, ", current->name);
+					break;
+				}
+				current = current->next;
+			}
+			token = strtok(NULL, " ");
+		}
+		printf("\n");
+	}
+
+	fclose(file);
+
+	// Free ingredient list memory
+	while (ingredientList != NULL) {
+		Ingredient* temp = ingredientList;
+		ingredientList = ingredientList->next;
+		free(temp);
+	}
+	return 0; // Indicate success
+}
+
+/**
+ * @brief Lists the names of all recipes.
+ *
+ * @param pathFileRecipes File path to load the recipes from.
+ */
+int listRecipesName(const char* pathFileRecipes) {
+	FILE* file = fopen(pathFileRecipes, "r");
+	if (!file) {
+		printf("Error opening recipe file.\n");
+		return -1; // Indicate error opening file
+	}
+
+	char line[MAX_NAME_LENGTH];
+	int id = 1;
+	while (fgets(line, sizeof(line), file)) {
+		printf("%d) %s", id++, line); // Displaying only the recipe name
+		fgets(line, sizeof(line), file); // Skip category line
+		fgets(line, sizeof(line), file); // Skip ingredients line
+	}
+
+	fclose(file);
+	return 0; // Indicate success
+}
+
+/**
+ * @brief Loads recipes from a file.
+ *
+ * @param pathFileRecipes File path to load the recipes from.
+ * @param recipes Array to store the loaded recipes.
+ * @param maxRecipes Maximum number of recipes to load.
+ * @return The number of recipes loaded.
+ */
+int loadRecipesFromFile(const char* pathFileRecipes, Recipe recipes[], int maxRecipes) {
+	FILE* file = fopen(pathFileRecipes, "r");
+	if (!file) {
+		printf("Error opening recipe file.\n");
+		return 0;
+	}
+
+	int recipeCount = 0;
+	while (recipeCount < maxRecipes && fgets(recipes[recipeCount].name, MAX_NAME_LENGTH, file)) {
+		recipes[recipeCount].name[strcspn(recipes[recipeCount].name, "\n")] = '\0'; // Remove newline
+
+		fscanf(file, "%d\n", &recipes[recipeCount].category);
+
+		char ingredientsLine[256];
+		fgets(ingredientsLine, sizeof(ingredientsLine), file);
+
+		recipes[recipeCount].ingredientCount = 0;
+		char* token = strtok(ingredientsLine, " ");
+		while (token != NULL && recipes[recipeCount].ingredientCount < MAX_INGREDIENTS) {
+			recipes[recipeCount].ingredients[recipes[recipeCount].ingredientCount++] = atoi(token);
+			token = strtok(NULL, " ");
+		}
+
+		recipeCount++;
+	}
+
+	fclose(file);
+	return recipeCount;
+}
+
+/**
+ * @brief Saves all recipes to a file.
+ *
+ * @param pathFileRecipes File path to save the recipes.
+ * @param recipes Array of recipes to be saved.
+ * @param recipeCount Number of recipes to save.
+ */
+void saveRecipesToFile(const char* pathFileRecipes, Recipe recipes[], int recipeCount) {
+	FILE* file = fopen(pathFileRecipes, "w");
+	if (!file) {
+		printf("Error opening recipe file for writing.\n"); return;
+	}
+
+	for (int i = 0; i < recipeCount; i++) {
+		fprintf(file, "%s\n", recipes[i].name);
+		fprintf(file, "%d\n", recipes[i].category);
+		for (int j = 0; j < recipes[i].ingredientCount; j++) {
+			fprintf(file, "%d ", recipes[i].ingredients[j]);
+		}
+		fprintf(file, "\n");
+	}
+
+	fclose(file);
+}
+
+/**
+ * @brief Inserts a key and recipe into the B+ tree.
+ *
+ * @param key The key to insert.
+ * @param recipe Pointer to the recipe to insert.
+ * @param root Pointer to the root of the B+ tree.
+ */
+void insert(int key, Recipe* recipe, struct BPlusTreeNode** root) {
+	struct BPlusTreeNode* cursor = *root;
+	if (cursor->keyCount == MAX_RECIPES) {
+		struct BPlusTreeNode* newRoot = createNode(0); newRoot->children[0] = *root; insertInternal(key, recipe, *root, root); *root = newRoot;
+	}
+	else {
+		insertInternal(key, recipe, cursor, root);
+	}
+}
+
+/**
+ * @brief Inserts a key and recipe into the internal nodes of the B+ tree.
+ *
+ * @param key The key to insert.
+ * @param recipe Pointer to the recipe to insert.
+ * @param cursor Pointer to the current B+ tree node.
+ * @param root Pointer to the root of the B+ tree.
+ */
+void insertInternal(int key, Recipe* recipe, struct BPlusTreeNode* cursor, struct BPlusTreeNode** root) {
+	if (cursor->keyCount < MAX_RECIPES) {
+		// Insert into non-full node
+		int i = cursor->keyCount - 1;
+		while (i >= 0 && cursor->keys[i] > key) {
+			cursor->keys[i + 1] = cursor->keys[i];
+			cursor->recipes[i + 1] = cursor->recipes[i];
+			i--;
+		}
+		cursor->keys[i + 1] = key;
+		cursor->recipes[i + 1] = recipe;
+		cursor->keyCount++;
+	}
+	else {
+		// Split full node
+		int tempKeys[MAX_RECIPES + 1];
+		Recipe* tempRecipes[MAX_RECIPES + 1];
+		for (int i = 0; i < MAX_RECIPES; ++i) {
+			tempKeys[i] = cursor->keys[i];
+			tempRecipes[i] = cursor->recipes[i];
+		}
+
+		int i = MAX_RECIPES - 1;
+		while (i >= 0 && tempKeys[i] > key) {
+			tempKeys[i + 1] = tempKeys[i]; tempRecipes[i + 1] = tempRecipes[i]; i--;
+		}
+		tempKeys[i + 1] = key;
+		tempRecipes[i + 1] = recipe;
+
+		struct BPlusTreeNode* newLeaf = createNode(1);
+		cursor->keyCount = (MAX_RECIPES + 1) / 2;
+		newLeaf->keyCount = MAX_RECIPES + 1 - cursor->keyCount;
+
+		for (int i = 0; i < cursor->keyCount; ++i) {
+			cursor->keys[i] = tempKeys[i];
+			cursor->recipes[i] = tempRecipes[i];
+		}
+		for (int i = 0; i < newLeaf->keyCount; ++i) {
+			newLeaf->keys[i] = tempKeys[cursor->keyCount + i];
+			newLeaf->recipes[i] = tempRecipes[cursor->keyCount + i];
+		}
+
+		newLeaf->next = cursor->next;
+		cursor->next = newLeaf;
+
+		// Insert new key to parent
+		if (cursor == *root) {
+			struct BPlusTreeNode* newRoot = createNode(0);
+			newRoot->keys[0] = newLeaf->keys[0];
+			newRoot->children[0] = cursor;
+			newRoot->children[1] = newLeaf;
+			newRoot->keyCount = 1;
+			*root = newRoot;
+		}
+		else {
+			insertInternal(newLeaf->keys[0], NULL, findParent(*root, cursor), root);
+		}
+	}
+}
