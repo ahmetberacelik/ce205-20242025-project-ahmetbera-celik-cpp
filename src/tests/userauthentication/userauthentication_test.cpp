@@ -78,6 +78,91 @@ TEST_F(UserauthenticationTest, getInputTest_WrongInput) {
 	EXPECT_EQ(-2, result);
 }
 
+TEST_F(UserauthenticationTest, getInputTest_EmptyInput) {
+	simulateUserInput("");
+	int result = getInput();
+	EXPECT_EQ(-1, result);
+}
+
+TEST_F(UserauthenticationTest, loginUserTest_FailedFileOpen) {
+
+	User testUser;
+	strcpy(testUser.email, "test@example.com");
+	strcpy(testUser.password, "test123");
+
+	simulateUserInput("asd_input");
+
+	int result = loginUser(testUser, pathFileUsers);
+
+	resetStdinStdout();
+
+	EXPECT_EQ(result, 0);
+	EXPECT_FALSE(result);
+}
+
+TEST_F(UserauthenticationTest, loginUserTest_UsersRegistered) {
+	simulateUserInput("\n\n\n\n\n");
+
+	User testUser = {};
+	int result = loginUser(testUser, pathFileUsers);
+
+	resetStdinStdout();
+
+	EXPECT_EQ(result, 0);
+}
+
+TEST_F(UserauthenticationTest, loginUserTest_NoUsersRegistered) {
+	FILE* emptyFile = fopen(pathFileUsers, "wb");
+
+	simulateUserInput("\n\n\n");
+
+	fclose(emptyFile);
+
+	User testUser = {};
+
+	int result = loginUser(testUser, pathFileUsers);
+
+	resetStdinStdout();
+
+	EXPECT_EQ(result, 0);
+}
+TEST_F(UserauthenticationTest, loginUserTest_InvalidUser) {
+	User testUser;
+	strcpy(testUser.email, "qwe");
+	strcpy(testUser.password, "qwe");
+	strcpy(testUser.name, "qwe");
+	strcpy(testUser.surname, "qwe");
+	User testUser2;
+	strcpy(testUser2.email, "qwe123");
+	strcpy(testUser2.password, "qwe123");
+	strcpy(testUser2.name, "qwe123");
+	strcpy(testUser2.surname, "qwe123");
+
+	simulateUserInput("\n\n\n");
+	registerUser(testUser, pathFileUsers);
+
+
+	int result = loginUser(testUser2, pathFileUsers);
+
+	resetStdinStdout();
+
+	EXPECT_EQ(result, 0);
+}
+TEST_F(UserauthenticationTest, printMainMenuTest) {
+	int result = printMainMenu();
+	EXPECT_EQ(result, 1);
+}
+
+TEST_F(UserauthenticationTest, printUserMenuTest) {
+	int result = printUserMenu();
+	EXPECT_EQ(result, 1);
+}
+
+TEST_F(UserauthenticationTest, printGuestMenuTest) {
+	int result = printGuestMenu();
+	EXPECT_EQ(result, 1);
+}
+
 
 
 
