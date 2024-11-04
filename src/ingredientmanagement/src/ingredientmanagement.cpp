@@ -202,3 +202,202 @@ Ingredient* addIngredient(Ingredient* head, const char* name, float price, const
 	saveIngredientsToFile(head, filePath);
 	return head;
 }
+
+/**
+ * @brief Saves all ingredients to a binary file.
+ *
+ * @param head The head of the linked list of ingredients.
+ * @param filePath The file path to save the ingredients.
+ * @return True if the ingredients were saved successfully, otherwise false.
+ */
+bool saveIngredientsToFile(Ingredient* head, const char* filePath) {
+	FILE* file = fopen(filePath, "wb");
+
+	Ingredient* temp = head;
+	while (temp != NULL) {
+		fwrite(temp, sizeof(Ingredient), 1, file);
+		temp = temp->next;
+	}
+
+	fclose(file);
+	return true;
+}
+
+/**
+ * @brief Lists ingredients using a doubly linked list (DLL).
+ *
+ * @param head The head of the linked list of ingredients.
+ * @return True if ingredients were listed, otherwise false.
+ */
+bool listIngredientsDLL(Ingredient* head) {
+	if (head == NULL) {
+		printf("No ingredients available.\n");
+		return false;
+	}
+	Ingredient* current = head;
+	printf("+----------------------------+\n");
+	printf("|Available Ingredients (DLL):|\n");
+	printf("+----------------------------+\n");
+	while (current != NULL) {
+		printf("--------------------------------------------------------------------\n");
+		printf("ID: %d, Name: %s, Price: %.2f\n", current->id, current->name, current->price);
+
+		current = current->next;
+	}
+	printf("--------------------------------------------------------------------\n");
+	return true;
+}
+
+/**
+ * @brief Lists ingredients using an extended linked list (XLL) in a table format.
+ *
+ * @param head The head of the linked list of ingredients.
+ * @return True if ingredients were listed, otherwise false.
+ */
+bool listIngredientsXLL(Ingredient* head) {
+	if (head == NULL) {
+		printf("No ingredients available.\n");
+		return false;
+	}
+	Ingredient* current = head;
+	printf("+----+----------------------+------------+----------------------+--------+\n");
+	printf("| ID | Name                 | Price      | Next/Prev            | Price  |\n");
+	printf("+----+----------------------+------------+----------------------+--------+\n");
+	while (current != NULL) {
+		printf("| %-2d | %-20s | %-6.2f |", current->id, current->name, current->price);
+
+		if (current->next != NULL) {
+			printf(" %-20s | %-6.2f |\n", current->next->name, current->next->price);
+		}
+		else {
+			printf(" %-20s | %-6s |\n", "-", "-");
+		}
+
+		if (current->prev != NULL) {
+			printf("|    | %-20s | %-6s | %-20s | %-6.2f |\n", "", "", current->prev->name, current->prev->price);
+		}
+
+		printf("+----+----------------------+------------+----------------------+--------+\n");
+		current = current->next;
+	}
+	return true;
+}
+
+/**
+ * @brief Lists all ingredients based on user choice of DLL or XLL.
+ *
+ * @param head The head of the linked list of ingredients.
+ * @return True if ingredients were listed, otherwise false.
+ */
+bool listIngredients(Ingredient* head) {
+	int choice;
+	clearScreen();
+	printf("+--------------------------------------+\n");
+	printf("|            LIST TYPE MENU            |\n");
+	printf("+--------------------------------------+\n");
+	printf("| 1. DLL (Doubly Linked List)          |\n");
+	printf("| 2. XLL (Extended Linked List)        |\n");
+	printf("+--------------------------------------+\n");
+	printf("Enter your choice: ");
+	choice = getInput();
+	if (choice == -2) {
+		handleInputError();
+		enterToContinue();
+		return false;
+	}
+
+	switch (choice) {
+	case 1:
+		clearScreen();
+		return listIngredientsDLL(head);
+	case 2:
+		clearScreen();
+		return listIngredientsXLL(head);
+	default:
+		printf("Invalid choice. Please try again.\n");
+		enterToContinue();
+		return false;
+	}
+}
+
+/**
+ * @brief Loads ingredients from a binary file.
+ *
+ * @param filePath The file path to load the ingredients from.
+ * @return A pointer to the head of the linked list of ingredients.
+ */
+Ingredient* loadIngredientsFromFile(const char* filePath) {
+	FILE* file = fopen(filePath, "rb");
+	if (file == NULL) {
+		return NULL;
+	}
+
+	Ingredient* head = NULL;
+	Ingredient* tail = NULL;
+	Ingredient temp;
+
+	while (fread(&temp, sizeof(Ingredient), 1, file) == 1) {
+		Ingredient* newIngredient = (Ingredient*)malloc(sizeof(Ingredient));
+		*newIngredient = temp;
+		newIngredient->prev = tail;
+		newIngredient->next = NULL;
+
+		if (head == NULL) {
+			head = newIngredient;
+		}
+		else {
+			tail->next = newIngredient;
+		}
+		tail = newIngredient;
+	}
+
+	fclose(file);
+	return head;
+}
+
+/**
+ * @brief Removes an ingredient by ID from the linked list.
+ *
+ * @param head The head of the linked list of ingredients.
+ * @param id The ID of the ingredient to remove.
+ * @param filePath The file path to save the updated list of ingredients.
+ * @return The updated head of the linked list.
+ */
+Ingredient* removeIngredient(Ingredient* head, int id, const char* filePath) {
+	if (head == NULL) {
+		printf("No ingredients to remove.\n");
+		enterToContinue();
+		return head;
+	}
+
+	Ingredient* current = head;
+
+	// Find the ingredient with the specified ID
+	while (current != NULL && current->id != id) {
+		current = current->next;
+	}
+
+	if (current == NULL) {
+		printf("Ingredient with ID %d not found.\n", id);
+		enterToContinue();
+		return head;
+	}
+
+	// Remove the ingredient from the list
+	if (current->prev != NULL) {
+		current->prev->next = current->next;
+	}
+	else {
+		head = current->next;
+	}
+
+	if (current->next != NULL) {
+		current->next->prev = current->prev;
+	}
+
+	free(current);
+	saveIngredientsToFile(head, filePath);
+	printf("Ingredient with ID %d removed successfully.\n", id);
+	enterToContinue();
+	return head;
+}
