@@ -78,3 +78,81 @@ bool isPrime(int number) {
 	}
 	return true;
 }
+
+int findNextPrime(int number) {
+	while (!isPrime(number)) {
+		number++;
+	}
+	return number;
+}
+/**
+ * @brief Searches for an ingredient using linear probing.
+ * @param ingredients Array of ingredients.
+ * @param totalIngredient Total number of ingredients in the array.
+ * @param ingredientId The ID of the ingredient to search for.
+ * @return Pointer to the ingredient if found, otherwise NULL.
+ */
+
+Ingredient* linearProbingSearch(Ingredient* ingredients, int totalIngredient, int ingredientId) {
+	for (int i = 0; i < totalIngredient; i++) {
+		if (ingredients[i].id == ingredientId) {
+			return &ingredients[i];
+		}
+	}
+	return NULL;
+}
+
+/**
+ * @brief Searches for an ingredient using quadratic probing.
+ * @param ingredients Array of ingredients.
+ * @param totalIngredient Total number of ingredients in the array.
+ * @param ingredientId The ID of the ingredient to search for.
+ * @return Pointer to the ingredient if found, otherwise NULL.
+ */
+Ingredient* quadraticProbingSearch(Ingredient* ingredients, int totalIngredient, int ingredientId) {
+	int startIdx = ingredientId % totalIngredient;
+	for (int i = 0; i < totalIngredient; i++) {
+		int index = (startIdx + i * i) % totalIngredient;
+		if (ingredients[index].id == ingredientId) {
+			return &ingredients[index];
+		}
+	}
+	return NULL;
+}
+
+/**
+ * @brief Searches for an ingredient using double hashing.
+ * @param ingredients Array of ingredients.
+ * @param totalIngredient Total number of ingredients in the array.
+ * @param ingredientId The ID of the ingredient to search for.
+ * @return Pointer to the ingredient if found, otherwise NULL.
+ */
+Ingredient* doubleHashingSearch(Ingredient* ingredients, int totalIngredient, int ingredientId) {
+	int hash1 = ingredientId % totalIngredient;
+	int hash2 = 1 + (ingredientId % (totalIngredient - 1));
+	for (int i = 0; i < totalIngredient; i++) {
+		int index = (hash1 + i * hash2) % totalIngredient;
+		if (ingredients[index].id == ingredientId) {
+			return &ingredients[index];
+		}
+	}
+	return NULL;
+}
+
+/**
+ * @brief Searches for an ingredient using progressive overflow.
+ * @param ingredients Array of ingredients.
+ * @param totalIngredient Total number of ingredients in the array.
+ * @param ingredientId The ID of the ingredient to search for.
+ * @return Pointer to the ingredient if found, otherwise NULL.
+ */
+Ingredient* progressiveOverflowSearch(Ingredient* ingredients, int totalIngredient, int ingredientId) {
+	int startIdx = ingredientId % totalIngredient;
+	for (int i = 0; i < totalIngredient; i++) {
+		int index = (startIdx + i) % totalIngredient;
+		if (ingredients[index].id == ingredientId) {
+			return &ingredients[index];
+		}
+	}
+	return NULL;
+}
