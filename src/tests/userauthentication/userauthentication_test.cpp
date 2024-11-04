@@ -162,6 +162,7 @@ TEST_F(UserauthenticationTest, printGuestMenuTest) {
 	int result = printGuestMenu();
 	EXPECT_EQ(result, 1);
 }
+
 TEST_F(UserauthenticationTest, getNewUserIdTest_EmptyUsers) {
 	User users[1];
 	int result = getNewUserId(users, 0);
