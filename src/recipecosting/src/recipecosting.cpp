@@ -600,3 +600,195 @@ void insertInternal(int key, Recipe* recipe, struct BPlusTreeNode* cursor, struc
 		}
 	}
 }
+
+
+/**
+ * @brief Finds the parent of a given B+ tree node.
+ *
+ * @param cursor Pointer to the current B+ tree node.
+ * @param child Pointer to the child node whose parent is to be found.
+ * @return Pointer to the parent node, or NULL if not found.
+ */
+struct BPlusTreeNode* findParent(struct BPlusTreeNode* cursor, struct BPlusTreeNode* child) {
+	if (cursor->isLeaf || cursor->children[0]->isLeaf) return NULL;
+	for (int i = 0; i < cursor->keyCount + 1; i++) {
+		if (cursor->children[i] == child) return cursor;
+		struct BPlusTreeNode* parent = findParent(cursor->children[i], child);
+		if (parent != NULL) return parent;
+	}
+	return NULL;
+}
+
+/**
+ * @brief Searches for a recipe by key in the B+ tree.
+ *
+ * @param key The key to search for.
+ * @param root Pointer to the root of the B+ tree.
+ */
+void search(int key, struct BPlusTreeNode* root) {
+	struct BPlusTreeNode* cursor = root;
+	while (!cursor->isLeaf) {
+		for (int i = 0; i < cursor->keyCount; ++i) {
+			if (key < cursor->keys[i]) {
+				cursor = cursor->children[i];
+				break;
+			}
+			if (i == cursor->keyCount - 1) cursor = cursor->children[i + 1];
+		}
+	}
+	int found = 0;
+	while (cursor != NULL) {
+		for (int i = 0; i < cursor->keyCount; ++i) {
+			if (cursor->keys[i] == key) {
+				printf("Recipe found: %s\n", cursor->recipes[i]->name);
+				found = 1;
+			}
+		}
+		cursor = cursor->next;
+	}
+	if (!found) {
+		printf("Recipe not found\n");
+	}
+}
+
+/**
+ * @brief Creates a new sparse matrix node.
+ *
+ * @param row Row index in the sparse matrix.
+ * @param col Column index in the sparse matrix.
+ * @param value Value to be stored in the sparse matrix.
+ * @return Pointer to the newly created sparse matrix node.
+ */
+SparseMatrixNode* createSparseMatrixNode(int row, int col, double value) {
+	SparseMatrixNode* newNode = (SparseMatrixNode*)malloc(sizeof(SparseMatrixNode));
+	newNode->row = row;
+	newNode->col = col;
+	newNode->value = value;
+	newNode->next = NULL;
+	return newNode;
+}
+
+/**
+ * @brief Inserts a new node into the sparse matrix.
+ *
+ * @param head Pointer to the head of the sparse matrix linked list.
+ * @param row Row index for the new node.
+ * @param col Column index for the new node.
+ * @param value Value to be stored in the new node.
+ */
+void insertSparseMatrixNode(SparseMatrixNode** head, int row, int col, double value) {
+	SparseMatrixNode* newNode = createSparseMatrixNode(row, col, value);
+	newNode->next = *head;
+	*head = newNode;
+}
+
+/**
+ * @brief Frees the memory used by the sparse matrix.
+ *
+ * @param head Pointer to the head of the sparse matrix linked list.
+ */
+void freeSparseMatrix(SparseMatrixNode* head) {
+	while (head != NULL) {
+		SparseMatrixNode* temp = head;
+		head = head->next;
+		free(temp);
+	}
+}
+
+/**
+ * @brief Traverses recipes using Breadth-First Search (BFS) and prints ingredient usage.
+ *
+ * @param pathFileRecipes File path to load the recipes.
+ * @param pathFileIngredients File path to load the ingredients data.
+ */
+void traverseRecipesBFS(const char* pathFileRecipes, const char* pathFileIngredients) {
+	Recipe recipes[MAX_RECIPES];
+	Ingredient* ingredientList = loadIngredientsFromFile(pathFileIngredients);
+	int recipeCount = loadRecipesFromFile(pathFileRecipes, recipes, MAX_RECIPES);
+
+	if (recipeCount == 0) {
+		printf("No recipes available."); enterToContinue(); return;
+	}
+
+	std::queue<int> q;
+	std::unordered_map<int, std::unordered_map<int, double>> ingredientUsage;
+
+	// Enqueue all recipes by their ID
+	for (int i = 0; i < recipeCount; ++i) {
+		q.push(i);
+	}
+
+	// Traverse using BFS
+	while (!q.empty()) {
+		int recipeId = q.front();
+		q.pop();
+		Recipe currentRecipe = recipes[recipeId];
+
+		// Count the ingredients used in this recipe
+		for (int i = 0; i < currentRecipe.ingredientCount; i++) {
+			int ingredientId = currentRecipe.ingredients[i];
+			ingredientUsage[recipeId][ingredientId]++;
+		}
+	}
+
+	// Display the results
+	for (const auto& recipeEntry : ingredientUsage) {
+		int recipeId = recipeEntry.first;
+		for (const auto& ingredientEntry : recipeEntry.second) {
+			int ingredientId = ingredientEntry.first;
+			double count = ingredientEntry.second;
+			printf("-------------------------------------------\n");
+			printf("Recipe %d uses Ingredient %d - %0.2f times\n", recipeId, ingredientId, count);
+			printf("-------------------------------------------\n");
+		}
+	}
+}
+
+/**
+ * @brief Traverses recipes using Depth-First Search (DFS) and prints ingredient usage.
+ *
+ * @param pathFileRecipes File path to load the recipes.
+ * @param pathFileIngredients File path to load the ingredients data.
+ */
+void traverseRecipesDFS(const char* pathFileRecipes, const char* pathFileIngredients) {
+	Recipe recipes[MAX_RECIPES];
+	Ingredient* ingredientList = loadIngredientsFromFile(pathFileIngredients);
+	int recipeCount = loadRecipesFromFile(pathFileRecipes, recipes, MAX_RECIPES);
+
+	if (recipeCount == 0) {
+		printf("No recipes available."); enterToContinue(); return;
+	}
+
+	std::stack<int> s;
+	std::unordered_map<int, std::unordered_map<int, double>> ingredientUsage;
+
+	// Push all recipes by their ID
+	for (int i = 0; i < recipeCount; ++i) {
+		s.push(i);
+	}
+
+	// Traverse using DFS
+	while (!s.empty()) {
+		int recipeId = s.top();
+		s.pop();
+		Recipe currentRecipe = recipes[recipeId];
+
+		// Count the ingredients used in this recipe
+		for (int i = 0; i < currentRecipe.ingredientCount; i++) {
+			int ingredientId = currentRecipe.ingredients[i];
+			ingredientUsage[recipeId][ingredientId]++;
+		}
+	}
+
+	// Display the results
+	for (const auto& recipeEntry : ingredientUsage) {
+		int recipeId = recipeEntry.first;
+		for (const auto& ingredientEntry : recipeEntry.second) {
+			int ingredientId = ingredientEntry.first;
+			double count = ingredientEntry.second;
+			printf("-------------------------------------------\n");
+			printf("Recipe %d uses Ingredient %d - %0.2f times\n", recipeId, ingredientId, count);
+			printf("-------------------------------------------\n");
+		}
+	}
+}
