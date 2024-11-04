@@ -171,6 +171,205 @@ TEST_F(IngredientmanagementTest, IngredientmanagementMenuInvalidChoiceTest) {
 }
 
 
+// Test for invalid ingredient ID input when viewing ingredients
+TEST_F(IngredientmanagementTest, IngredientmanagementMenuViewInvalidInputTest) {
+    Ingredient* head = nullptr;
+    head = addIngredient(head, "Tomato", 2.5, testFilePath);
+    saveIngredientsToFile(head, testFilePath);
+
+    simulateUserInput("1\n-2\n\n\n3\n5\n\n");
+
+    int result = ingredientManagementMenu(testFilePath);
+
+    resetStdinStdout();
+
+    EXPECT_EQ(result, 0);
+
+    // Clean up
+    Ingredient* temp;
+    while (head != nullptr) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+// Test for invalid name input during ingredient addition
+TEST_F(IngredientmanagementTest, AddIngredientInvalidNameTest) {
+    simulateUserInput("2\nTomato123\n\nValidName\n2.5\n\n5\n\n");
+
+    int result = ingredientManagementMenu(testFilePath);
+
+    resetStdinStdout();
+
+    EXPECT_EQ(result, 0);
+
+    char buffer[1024];
+    readOutput(outputTest, buffer, sizeof(buffer));
+    EXPECT_NE(strstr(buffer, "Invalid ingredient name. Please enter a valid name without numbers."), nullptr);
+}
+
+// Test for invalid price input during ingredient addition
+TEST_F(IngredientmanagementTest, AddIngredientInvalidPriceTest) {
+    simulateUserInput("2\nTomato\ninvalidprice\n\n2.5\n\n5\n\n");
+
+    int result = ingredientManagementMenu(testFilePath);
+
+    resetStdinStdout();
+
+    EXPECT_EQ(result, 0);
+
+    char buffer[1024];
+    readOutput(outputTest, buffer, sizeof(buffer));
+    EXPECT_NE(strstr(buffer, "Invalid price. Please enter a valid positive number."), nullptr);
+}
+
+
+// Test for invalid input in ingredient viewing navigation
+TEST_F(IngredientmanagementTest, IngredientViewingInvalidNavigationTest) {
+    Ingredient* head = nullptr;
+    head = addIngredient(head, "Tomato", 2.5, testFilePath);
+    head = addIngredient(head, "Cucumber", 1.8, testFilePath);
+    saveIngredientsToFile(head, testFilePath);
+
+    simulateUserInput("1\n10\n\n3\n5\n\n");
+
+    int result = ingredientManagementMenu(testFilePath);
+
+    resetStdinStdout();
+
+    EXPECT_EQ(result, 0);
+
+    char buffer[1024];
+    readOutput(outputTest, buffer, sizeof(buffer));
+    EXPECT_NE(strstr(buffer, "Invalid choice or no more ingredients in that direction."), nullptr);
+
+    // Clean up
+    Ingredient* temp;
+    while (head != nullptr) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+TEST_F(IngredientmanagementTest, AddIngredientTest) {
+    Ingredient* head = nullptr;
+    const char* name = "Tomato";
+    float price = 2.5;
+
+    head = addIngredient(head, name, price, testFilePath);
+
+    ASSERT_NE(head, nullptr);
+    EXPECT_EQ(head->id, 1);
+    EXPECT_STREQ(head->name, "Tomato");
+    EXPECT_FLOAT_EQ(head->price, 2.5);
+    EXPECT_EQ(head->next, nullptr);
+    EXPECT_EQ(head->prev, nullptr);
+
+    // Clean up
+    free(head);
+}
+
+// Test for saving ingredients to file
+TEST_F(IngredientmanagementTest, SaveIngredientsToFileTest) {
+    Ingredient* head = nullptr;
+    head = addIngredient(head, "Tomato", 2.5, testFilePath);
+    head = addIngredient(head, "Cucumber", 1.8, testFilePath);
+
+    bool result = saveIngredientsToFile(head, testFilePath);
+
+    EXPECT_TRUE(result);
+
+    // Clean up
+    Ingredient* temp;
+    while (head != nullptr) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+// Test for listing ingredients using DLL
+TEST_F(IngredientmanagementTest, ListIngredientsDLLTest) {
+    Ingredient* head = nullptr;
+    head = addIngredient(head, "Tomato", 2.5, testFilePath);
+    head = addIngredient(head, "Cucumber", 1.8, testFilePath);
+
+    simulateUserInput("");
+
+    bool result = listIngredientsDLL(head);
+
+    resetStdinStdout();
+
+    EXPECT_TRUE(result);
+
+    // Clean up
+    Ingredient* temp;
+    while (head != nullptr) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+// Test for listing ingredients using DLL when no ingredients are available
+TEST_F(IngredientmanagementTest, ListIngredientsDLLNoIngredientsTest) {
+    Ingredient* head = nullptr;
+
+    simulateUserInput("");
+
+    bool result = listIngredientsDLL(head);
+
+    resetStdinStdout();
+
+    EXPECT_FALSE(result);
+
+    char buffer[1024];
+    readOutput(outputTest, buffer, sizeof(buffer));
+    EXPECT_NE(strstr(buffer, "No ingredients available."), nullptr);
+}
+
+TEST_F(IngredientmanagementTest, ListIngredientsXLLTest) {
+    Ingredient* head = nullptr;
+    head = addIngredient(head, "Tomato", 2.5, testFilePath);
+    head = addIngredient(head, "Cucumber", 1.8, testFilePath);
+
+    simulateUserInput("");
+
+    bool result = listIngredientsXLL(head);
+
+    resetStdinStdout();
+
+    EXPECT_TRUE(result);
+
+
+    // Clean up
+    Ingredient* temp;
+    while (head != nullptr) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+// Test for listing ingredients using XLL when no ingredients are available
+TEST_F(IngredientmanagementTest, ListIngredientsXLLNoIngredientsTest) {
+    Ingredient* head = nullptr;
+
+    simulateUserInput("");
+
+    bool result = listIngredientsXLL(head);
+
+    resetStdinStdout();
+
+    EXPECT_FALSE(result);
+
+    char buffer[1024];
+    readOutput(outputTest, buffer, sizeof(buffer));
+    EXPECT_NE(strstr(buffer, "No ingredients available."), nullptr);
+}
+
 
 /**
  * @brief The main function of the test program.
