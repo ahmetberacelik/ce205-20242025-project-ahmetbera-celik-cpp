@@ -293,7 +293,6 @@ int editRecipe(const char* pathFileRecipes, const char* pathFileIngredients) {
 	return 0; // Indicate success
 }
 
-
 /**
  * @brief Calculates the cost of a recipe by summing the prices of its ingredients.
  *
@@ -601,7 +600,6 @@ void insertInternal(int key, Recipe* recipe, struct BPlusTreeNode* cursor, struc
 	}
 }
 
-
 /**
  * @brief Finds the parent of a given B+ tree node.
  *
@@ -793,7 +791,6 @@ void traverseRecipesDFS(const char* pathFileRecipes, const char* pathFileIngredi
 	}
 }
 
-
 /**
  * @brief Analyzes ingredient usage across all recipes using BFS or DFS.
  *
@@ -906,3 +903,4 @@ int recipeCostingMenu(const char* pathFileIngredients, const char* pathFileRecip
 		}
 	}
 }
+
