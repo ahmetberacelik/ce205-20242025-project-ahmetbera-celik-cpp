@@ -138,3 +138,65 @@ int listRecipesWithPrices(const char* pathFileRecipes, const char* pathFileIngre
     return 1;
 }
 
+
+/**
+ * @brief Displays the current budget
+ * @param budget Current budget value
+ */
+int viewBudget(double budget) {
+    clearScreen();
+    printf("\n=== Current Budget ===\n");
+    printf("Your current budget: %.2f TL\n\n", budget);
+    enterToContinue();
+    return 1;
+}
+
+/**
+ * @brief Displays and handles the budget planner menu
+ * @param pathFileRecipes Path to the file containing recipes
+ * @param pathFileIngredients Path to the file containing ingredients
+ * @return Returns 1 when exiting the menu
+ */
+int budgetPlannerMenu(const char* pathFileRecipes, const char* pathFileIngredients) {
+    // Ask user for their current budget
+    double budget;
+    printf("\nEnter your current budget: ");
+    while (scanf("%lf", &budget) != 1 || budget < 0) {
+        printf("Invalid input. Please enter a valid positive number for your budget: ");
+        while (getchar() != '\n'); // Clear input buffer
+    }
+    getchar(); // Consume newline character
+
+    int choice;
+    while (1) {
+        clearScreen();
+        printf("\n=== Budget Planner Menu ===\n\n");
+        printf("1. Plan Meals\n");
+        printf("2. View Budget\n");
+        printf("3. Exit\n\n");
+        printf("Your choice: ");
+
+        choice = getInput();
+        if (choice == -2) {
+            handleInputError();
+            enterToContinue();
+            continue;
+        }
+
+        switch (choice) {
+        case 1:
+            planMeals(pathFileRecipes, pathFileIngredients, &budget);
+            break;
+        case 2:
+            viewBudget(budget);
+            break;
+        case 3:
+            return 1;
+        default:
+            printf("\nInvalid choice. Please try again.\n\n");
+            enterToContinue();
+            break;
+        }
+    }
+}
+
