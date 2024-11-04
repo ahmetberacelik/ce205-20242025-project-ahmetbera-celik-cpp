@@ -81,7 +81,6 @@ cd ..
 
 echo Running Test Executable
 
-./publish_linux/bin/utility_tests
 ./publish_linux/bin/costcalculator_tests
 ./publish_linux/bin/costcalculatorapp
 
@@ -93,10 +92,8 @@ lcov --rc lcov_branch_coverage=1 --remove coverage_linux.info 'tests/*' --output
 lcov --rc lcov_branch_coverage=1 --list coverage_linux.info
 
 echo "Generate Test Report"
-reportgenerator "-title:Costcalculator Library Unit Test Coverage Report (Linux)" "-reports:**/coverage_linux.info" "-targetdir:docs/coveragereportliblinux" "-reporttypes:Html" 
-
-"-sourcedirs:src/utility/src;src/utility/header;src/costcalculator/src;src/costcalculator/header;src/costcalculatorapp/src;src/costcalculatorapp/header;src/tests/utility;src/tests/costcalculator" "-filefilters:-*minkernel\*;-*gtest*;-*a\_work\*;-*gtest-*;-*gtest.cc;-*gtest.h;-*build*" "-historydir:report_test_hist_linux"
-reportgenerator "-reports:**/coverage_linux.info" "-targetdir:assets/codecoverageliblinux" "-reporttypes:Badges" "-sourcedirs:src/utility/src;src/utility/header;src/costcalculator/src;src/costcalculator/header;src/costcalculatorapp/src;src/costcalculatorapp/header;src/tests/utility;src/tests/costcalculator" "-filefilters:-*minkernel\*;-*gtest*;-*a\_work\*;-*gtest-*;-*gtest.cc;-*gtest.h;-*build*"
+reportgenerator "-title:Costcalculator Library Unit Test Coverage Report (Linux)" "-reports:**/coverage_linux.info" "-targetdir:docs/coveragereportliblinux" "-reporttypes:Html" "-sourcedirs:src/costcalculator/src;src/costcalculator/header;src/costcalculatorapp/src;src/costcalculatorapp/header;src/tests/costcalculator" "-filefilters:-*minkernel\*;-*gtest*;-*a\_work\*;-*gtest-*;-*gtest.cc;-*gtest.h;-*build*" "-historydir:report_test_hist_linux"
+reportgenerator "-reports:**/coverage_linux.info" "-targetdir:assets/codecoverageliblinux" "-reporttypes:Badges" "-sourcedirs:src/costcalculator/src;src/costcalculator/header;src/costcalculatorapp/src;src/costcalculatorapp/header;src/tests/costcalculator" "-filefilters:-*minkernel\*;-*gtest*;-*a\_work\*;-*gtest-*;-*gtest.cc;-*gtest.h;-*build*"
 
 echo "Copy the 'assets' folder and its contents to 'docs' recursively"
 cp -R assets "docs/assets"
@@ -114,13 +111,11 @@ tar -czvf release_linux/linux-publish-binaries.tar.gz -C publish_linux .
 
 echo "Package Publish Linux Binaries"
 mkdir -p build_linux/build/Release
-cp -R src/utility/header build_linux/build/Release
 cp -R src/costcalculator/header build_linux/build/Release
 tar -czvf release_linux/linux-release-binaries.tar.gz -C build_linux/build/Release .
 
 echo "Package Publish Debug Linux Binaries"
 mkdir -p build_linux/build/Debug
-cp -R src/utility/header build_linux/build/Debug
 cp -R src/costcalculator/header build_linux/build/Debug
 tar -czvf release_linux/linux-debug-binaries.tar.gz -C build_linux/build/Debug .
 

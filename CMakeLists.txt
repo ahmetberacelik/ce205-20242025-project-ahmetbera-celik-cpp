@@ -39,18 +39,15 @@ set(CRYPTOPP_INSTALL ON)
 set(CRYPTOPP_BUILD_SHARED OFF)
 set(CRYPTOPP_USE_MASTER_BRANCH FALSE)
 
-option(ENABLE_UTILITY "Enable Utility Module" ON)
 option(ENABLE_COSTCALCULATOR "Enable Costcalculator Module" ON)
 option(ENABLE_COSTCALCULATOR_APP "Enable Costcalculator Application" ON)
 option(ENABLE_TESTS "Enable All Tests" ON)
 
 # Configure tests
-add_compile_definitions(ENABLE_UTILITY_TEST)
 add_compile_definitions(ENABLE_COSTCALCULATOR_TEST)
 
 
 # Configure logs
-add_compile_definitions(ENABLE_UTILITY_LOGGER)
 add_compile_definitions(ENABLE_COSTCALCULATOR_LOGGER)
 
 # Set the output directories for Debug and Release configurations
@@ -93,12 +90,6 @@ else()
   message(WARNING "[${ROOT}] Not supported with the current compiler.")
 endif()
 
-
-
-# Utility submodule
-if(ENABLE_UTILITY)
-	add_subdirectory(${ROOT}/utility)
-endif()
 
 # Logger submodule
 if(ENABLE_COSTCALCULATOR)

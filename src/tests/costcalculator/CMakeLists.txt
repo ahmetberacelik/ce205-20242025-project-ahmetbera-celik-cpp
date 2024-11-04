@@ -25,12 +25,11 @@ add_executable(${EXENAME} ${LIB_HEADERS} ${LIB_SOURCES})
 
 # Add included headers
 target_include_directories(${EXENAME} PUBLIC
-						   ${CMAKE_CURRENT_SOURCE_DIR}/../../utility/header
 						   ${CMAKE_CURRENT_SOURCE_DIR}/../../costcalculator/header
 						   ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Add any dependencies or compile options specific to aka5g tests
-target_link_libraries(${EXENAME} PRIVATE costcalculator utility gtest gtest_main)
+target_link_libraries(${EXENAME} PRIVATE costcalculator gtest gtest_main)
 
 # Register the test with CTest
 # add_test(NAME ${EXENAME} COMMAND ${EXENAME})

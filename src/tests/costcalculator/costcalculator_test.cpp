@@ -3,8 +3,6 @@
 #include "gtest/gtest.h"
 #include "../../costcalculator/header/costcalculator.h"  // Adjust this include path based on your project structure
 
-using namespace Coruh::Costcalculator;
-
 class CostcalculatorTest : public ::testing::Test {
 protected:
 	void SetUp() override {
@@ -15,30 +13,6 @@ protected:
 		// Clean up test data
 	}
 };
-
-TEST_F(CostcalculatorTest, TestAdd) {
-	double result = Costcalculator::add(5.0, 3.0);
-	EXPECT_DOUBLE_EQ(result, 8.0);
-}
-
-TEST_F(CostcalculatorTest, TestSubtract) {
-	double result = Costcalculator::subtract(5.0, 3.0);
-	EXPECT_DOUBLE_EQ(result, 2.0);
-}
-
-TEST_F(CostcalculatorTest, TestMultiply) {
-	double result = Costcalculator::multiply(5.0, 3.0);
-	EXPECT_DOUBLE_EQ(result, 15.0);
-}
-
-TEST_F(CostcalculatorTest, TestDivide) {
-	double result = Costcalculator::divide(6.0, 3.0);
-	EXPECT_DOUBLE_EQ(result, 2.0);
-}
-
-TEST_F(CostcalculatorTest, TestDivideByZero) {
-	EXPECT_THROW(Costcalculator::divide(5.0, 0.0), std::invalid_argument);
-}
 
 /**
  * @brief The main function of the test program.

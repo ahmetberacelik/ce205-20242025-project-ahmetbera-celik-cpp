@@ -31,7 +31,6 @@ cd ..
 
 echo Running Test Executable
 
-call .\publish_win\bin\utility_tests.exe
 call .\publish_win\bin\costcalculator_tests.exe
 call .\publish_win\bin\costcalculatorapp.exe
 
@@ -41,13 +40,11 @@ echo Package Publish Windows Binaries
 tar -czvf release\windows-publish-binaries.tar.gz -C publish .
 
 echo Package Publish Windows Binaries
-call robocopy src\utility\header "build_win\build\Release" /E
 call robocopy src\costcalculator\header "build_win\build\Release" /E
 call robocopy src\costcalculatorapp\header "build_win\build\Release" /E
 tar -czvf release_win\windows-release-binaries.tar.gz -C build_win\build\Release .
 
 echo Package Publish Debug Windows Binaries
-call robocopy src\utility\header "build_win\build\Debug" /E
 call robocopy src\costcalculator\header "build_win\build\Debug" /E
 call robocopy src\costcalculatorapp\header "build_win\build\Debug" /E
 tar -czvf release_win\windows-debug-binaries.tar.gz -C build_win\build\Debug .

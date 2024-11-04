@@ -80,18 +80,15 @@ call junit2html testResults_windows.xml testResults_windows.html
 call copy testResults_windows.html "..\docs\testresultswin\index.html"
 cd ..
 
-echo Generate Test Coverage Data for Utility
-call OpenCppCoverage.exe --export_type=binary:utility_tests_unit_win.cov --sources src\utility\src --sources src\utility\header --sources src\tests\utility -- build_win\build\Debug\utility_tests.exe
-
 echo Generate Test Coverage Data for Costcalculator
 call OpenCppCoverage.exe --export_type=binary:costcalculator_tests_unit_win.cov --sources src\costcalculator\src --sources src\costcalculator\header --sources src\tests\costcalculator -- build_win\build\Debug\costcalculator_tests.exe
 
 echo Generate Test Coverage Data for Costcalculator App and Combine Results
-call OpenCppCoverage.exe --input_coverage=utility_tests_unit_win.cov --input_coverage=costcalculator_tests_unit_win.cov --export_type=cobertura:costcalculatorapp_unit_win_cobertura.xml --sources src\utility\src --sources src\utility\header --sources src\costcalculator\src --sources src\costcalculator\header --sources src\costcalculatorapp\src --sources src\costcalculatorapp\header --sources src\tests\utility --sources src\tests\costcalculator -- build_win\build\Debug\costcalculatorapp.exe
+call OpenCppCoverage.exe --input_coverage=costcalculator_tests_unit_win.cov --export_type=cobertura:costcalculatorapp_unit_win_cobertura.xml --sources src\costcalculator\src --sources src\costcalculator\header --sources src\costcalculatorapp\src --sources src\costcalculatorapp\header --sources src\tests\costcalculator -- build_win\build\Debug\costcalculatorapp.exe
 
 echo Generate Unit Test Coverage Report
-call reportgenerator "-title:Costcalculator Library Unit Test Coverage Report (Windows)" "-targetdir:docs/coveragereportlibwin" "-reporttypes:Html" "-reports:**/costcalculatorapp_unit_win_cobertura.xml" "-sourcedirs:src/utility/src;src/utility/header;src/costcalculator/src;src/costcalculator/header;src/costcalculatorapp/src;src/costcalculatorapp/header;src/tests/utility;src/tests/costcalculator" "-filefilters:-*minkernel\*;-*gtest*;-*a\_work\*;-*gtest-*;-*gtest.cc;-*gtest.h;-*build*" "-historydir:report_test_hist_win"
-call reportgenerator "-targetdir:assets/codecoveragelibwin" "-reporttypes:Badges" "-reports:**/costcalculatorapp_unit_win_cobertura.xml" "-sourcedirs:src/utility/src;src/utility/header;src/costcalculator/src;src/costcalculator/header;src/costcalculatorapp/src;src/costcalculatorapp/header;src/tests/utility;src/tests/costcalculator" "-filefilters:-*minkernel\*;-*gtest*;-*a\_work\*;-*gtest-*;-*gtest.cc;-*gtest.h;-*build*"
+call reportgenerator "-title:Costcalculator Library Unit Test Coverage Report (Windows)" "-targetdir:docs/coveragereportlibwin" "-reporttypes:Html" "-reports:**/costcalculatorapp_unit_win_cobertura.xml" "src/costcalculator/src;src/costcalculator/header;src/costcalculatorapp/src;src/costcalculatorapp/header;src/tests/costcalculator" "-filefilters:-*minkernel\*;-*gtest*;-*a\_work\*;-*gtest-*;-*gtest.cc;-*gtest.h;-*build*" "-historydir:report_test_hist_win"
+call reportgenerator "-targetdir:assets/codecoveragelibwin" "-reporttypes:Badges" "-reports:**/costcalculatorapp_unit_win_cobertura.xml" "-sourcedirs:src/costcalculator/src;src/costcalculator/header;src/costcalculatorapp/src;src/costcalculatorapp/header;src/tests/costcalculator" "-filefilters:-*minkernel\*;-*gtest*;-*a\_work\*;-*gtest-*;-*gtest.cc;-*gtest.h;-*build*"
 
 echo Copy the "assets" folder and its contents to "docs" recursively
 call robocopy assets "docs\assets" /E
@@ -123,13 +120,11 @@ echo Package Publish Windows Binaries
 tar -czvf release_win\windows-publish-binaries.tar.gz -C publish_win .
 
 echo Package Publish Windows Binaries
-call robocopy src\utility\header "build_win\build\Release" /E
 call robocopy src\costcalculator\header "build_win\build\Release" /E
 call robocopy src\costcalculatorapp\header "build_win\build\Release" /E
 tar -czvf release_win\windows-release-binaries.tar.gz -C build_win\build\Release .
 
 echo Package Publish Debug Windows Binaries
-call robocopy src\utility\header "build_win\build\Debug" /E
 call robocopy src\costcalculator\header "build_win\build\Debug" /E
 call robocopy src\costcalculatorapp\header "build_win\build\Debug" /E
 tar -czvf release_win\windows-debug-binaries.tar.gz -C build_win\build\Debug .

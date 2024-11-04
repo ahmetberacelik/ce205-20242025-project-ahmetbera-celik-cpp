@@ -32,11 +32,6 @@ include_directories(${GTEST_DIR}/googletest/include)
 # include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 
-# Utility tests
-if(ENABLE_UTILITY)
-	add_subdirectory(utility)
-endif()
-
 # Costcalculator tests
 if(ENABLE_COSTCALCULATOR)
 	add_subdirectory(costcalculator)
