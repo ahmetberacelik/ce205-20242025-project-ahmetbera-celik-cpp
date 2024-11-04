@@ -371,6 +371,325 @@ TEST_F(IngredientmanagementTest, ListIngredientsXLLNoIngredientsTest) {
 }
 
 
+// Test for listing ingredients
+TEST_F(IngredientmanagementTest, ListIngredientsTest) {
+    Ingredient* head = nullptr;
+    head = addIngredient(head, "Tomato", 2.5, testFilePath);
+    head = addIngredient(head, "Cucumber", 1.8, testFilePath);
+
+    // Test for DLL choice
+    simulateUserInput("1\n");
+
+    bool result = listIngredients(head);
+
+    resetStdinStdout();
+
+    EXPECT_TRUE(result);
+
+    // Test for XLL choice
+    simulateUserInput("2\n");
+
+    result = listIngredients(head);
+
+    resetStdinStdout();
+
+    EXPECT_TRUE(result);
+
+
+    // Clean up
+    Ingredient* temp;
+    while (head != nullptr) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+// Test for invalid input handling in listIngredients function
+TEST_F(IngredientmanagementTest, ListIngredientsInvalidInputTest) {
+    Ingredient* head = nullptr;
+    head = addIngredient(head, "Tomato", 2.5, testFilePath);
+
+    // Test for invalid input
+    simulateUserInput("-2\n\n\n");
+
+    bool result = listIngredients(head);
+
+    resetStdinStdout();
+
+    EXPECT_FALSE(result);
+
+    // Clean up
+    Ingredient* temp;
+    while (head != nullptr) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+// Test for input error handling in listIngredients function
+TEST_F(IngredientmanagementTest, ListIngredientsInputErrorHandlingTest) {
+    Ingredient* head = nullptr;
+
+    // Test for input error
+    simulateUserInput("4545\n\n\n");
+
+    bool result = listIngredients(head);
+
+    resetStdinStdout();
+
+    EXPECT_FALSE(result);
+
+}
+
+// Test for loading ingredients from file
+TEST_F(IngredientmanagementTest, LoadIngredientsFromFileTest) {
+    Ingredient* head = nullptr;
+    head = addIngredient(head, "Tomato", 2.5, testFilePath);
+    head = addIngredient(head, "Cucumber", 1.8, testFilePath);
+
+    saveIngredientsToFile(head, testFilePath);
+
+    // Load ingredients from file
+    Ingredient* loadedHead = loadIngredientsFromFile(testFilePath);
+
+    ASSERT_NE(loadedHead, nullptr);
+    EXPECT_EQ(loadedHead->id, 1);
+    EXPECT_STREQ(loadedHead->name, "Tomato");
+    EXPECT_FLOAT_EQ(loadedHead->price, 2.5);
+
+    Ingredient* second = loadedHead->next;
+    ASSERT_NE(second, nullptr);
+    EXPECT_EQ(second->id, 2);
+    EXPECT_STREQ(second->name, "Cucumber");
+    EXPECT_FLOAT_EQ(second->price, 1.8);
+
+    EXPECT_EQ(second->next, nullptr);
+
+    // Clean up
+    Ingredient* temp;
+    while (loadedHead != nullptr) {
+        temp = loadedHead;
+        loadedHead = loadedHead->next;
+        free(temp);
+    }
+    while (head != nullptr) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+// Test for removing an ingredient
+TEST_F(IngredientmanagementTest, RemoveIngredientTest) {
+    Ingredient* head = nullptr;
+    head = addIngredient(head, "Tomato", 2.5, testFilePath);
+    head = addIngredient(head, "Cucumber", 1.8, testFilePath);
+    simulateUserInput("\n");
+    // Remove the first ingredient
+    head = removeIngredient(head, 1, testFilePath);
+
+    resetStdinStdout();
+
+    ASSERT_NE(head, nullptr);
+    EXPECT_EQ(head->id, 2);
+    EXPECT_STREQ(head->name, "Cucumber");
+    EXPECT_FLOAT_EQ(head->price, 1.8);
+    EXPECT_EQ(head->next, nullptr);
+
+    // Clean up
+    Ingredient* temp;
+    while (head != nullptr) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+// Test for removing an ingredient when the list is empty
+TEST_F(IngredientmanagementTest, RemoveIngredientEmptyListTest) {
+    Ingredient* head = nullptr;
+
+    simulateUserInput("\n");
+
+    head = removeIngredient(head, 1, testFilePath);
+
+    resetStdinStdout();
+
+    EXPECT_EQ(head, nullptr);
+
+}
+
+// Test for removing a non-existent ingredient
+TEST_F(IngredientmanagementTest, RemoveNonExistentIngredientTest) {
+    Ingredient* head = nullptr;
+    head = addIngredient(head, "Tomato", 2.5, testFilePath);
+    head = addIngredient(head, "Cucumber", 1.8, testFilePath);
+
+    // Attempt to remove an ingredient with an ID that does not exist
+    simulateUserInput("\n");
+
+    head = removeIngredient(head, 3, testFilePath);
+
+    resetStdinStdout();
+
+    ASSERT_NE(head, nullptr);
+    EXPECT_EQ(head->id, 1);
+    EXPECT_STREQ(head->name, "Tomato");
+    EXPECT_FLOAT_EQ(head->price, 2.5);
+    EXPECT_NE(head->next, nullptr);
+    EXPECT_EQ(head->next->id, 2);
+    EXPECT_STREQ(head->next->name, "Cucumber");
+
+
+    // Clean up
+    Ingredient* temp;
+    while (head != nullptr) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+// Test for removing a middle ingredient
+TEST_F(IngredientmanagementTest, RemoveMiddleIngredientTest) {
+    Ingredient* head = nullptr;
+    head = addIngredient(head, "Tomato", 2.5, testFilePath);
+    head = addIngredient(head, "Cucumber", 1.8, testFilePath);
+    head = addIngredient(head, "Onion", 1.2, testFilePath);
+
+    simulateUserInput("\n");
+
+    // Remove the middle ingredient (Cucumber)
+    head = removeIngredient(head, 2, testFilePath);
+
+    resetStdinStdout();
+
+    ASSERT_NE(head, nullptr);
+    EXPECT_EQ(head->id, 1);
+    EXPECT_STREQ(head->name, "Tomato");
+    EXPECT_FLOAT_EQ(head->price, 2.5);
+    EXPECT_NE(head->next, nullptr);
+    EXPECT_EQ(head->next->id, 3);
+    EXPECT_STREQ(head->next->name, "Onion");
+    EXPECT_FLOAT_EQ(head->next->price, 1.2);
+    EXPECT_EQ(head->next->prev, head);
+
+    // Clean up
+    Ingredient* temp;
+    while (head != nullptr) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+// Test for viewing ingredients in the list after removing an element
+TEST_F(IngredientmanagementTest, RemoveIngredientPrevPointerUpdateTest) {
+    Ingredient* head = nullptr;
+    head = addIngredient(head, "Tomato", 2.5, testFilePath);
+    head = addIngredient(head, "Cucumber", 1.8, testFilePath);
+    head = addIngredient(head, "Onion", 1.2, testFilePath);
+
+    simulateUserInput("\n");
+
+    // Remove the first ingredient (Tomato)
+    head = removeIngredient(head, 1, testFilePath);
+
+    resetStdinStdout();
+
+    ASSERT_NE(head, nullptr);
+    EXPECT_EQ(head->id, 2);
+    EXPECT_STREQ(head->name, "Cucumber");
+    EXPECT_FLOAT_EQ(head->price, 1.8);
+    EXPECT_NE(head->next, nullptr);
+    EXPECT_EQ(head->next->id, 3);
+    EXPECT_STREQ(head->next->name, "Onion");
+    EXPECT_EQ(head->next->prev, head);
+
+    // Clean up
+    Ingredient* temp;
+    while (head != nullptr) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+// Test for editing an ingredient
+TEST_F(IngredientmanagementTest, EditIngredientTest) {
+    Ingredient* head = nullptr;
+    head = addIngredient(head, "Tomato", 2.5, testFilePath);
+    head = addIngredient(head, "Cucumber", 1.8, testFilePath);
+
+    saveIngredientsToFile(head, testFilePath);
+
+    // Simulate user input to edit the ingredient with ID 1 (Tomato) to "Lettuce"
+    simulateUserInput("1\nLettuce\n\n\n");
+
+    head = editIngredient(head, testFilePath);
+
+    resetStdinStdout();
+
+    ASSERT_NE(head, nullptr);
+    EXPECT_EQ(head->id, 1);
+    EXPECT_FLOAT_EQ(head->price, 2.5);
+
+    // Clean up
+    Ingredient* temp;
+    while (head != nullptr) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+// Test for editing an ingredient when no ingredients are available
+TEST_F(IngredientmanagementTest, EditIngredientNoIngredientsTest) {
+    Ingredient* head = nullptr;
+
+    simulateUserInput("\n");
+
+    head = editIngredient(head, testFilePath);
+
+    resetStdinStdout();
+
+    EXPECT_EQ(head, nullptr);
+
+}
+
+
+TEST_F(IngredientmanagementTest, EditIngredientValidTest) {
+    // Setup: Add initial ingredients to the linked list and save to file
+    Ingredient* head = nullptr;
+    head = addIngredient(head, "Tomato", 2.5, testFilePath);
+    head = addIngredient(head, "Cucumber", 1.8, testFilePath);
+    saveIngredientsToFile(head, testFilePath);
+
+    // Simulate user input to edit the ingredient with ID 1 (Tomato) to "Lettuce"
+    simulateUserInput("1\n1\nLettuce\n\n");
+
+    // Call the editIngredient function
+    head = editIngredient(head, testFilePath);
+
+    resetStdinStdout();
+
+    // Verify: Check that the ingredient was updated correctly
+    ASSERT_NE(head, nullptr);
+    EXPECT_EQ(head->id, 1);
+    EXPECT_STREQ(head->name, "Lettuce");
+    EXPECT_FLOAT_EQ(head->price, 2.5);
+
+    // Clean up
+    Ingredient* temp;
+    while (head != nullptr) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
 /**
  * @brief The main function of the test program.
  *
