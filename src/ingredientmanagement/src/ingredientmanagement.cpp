@@ -401,3 +401,257 @@ Ingredient* removeIngredient(Ingredient* head, int id, const char* filePath) {
 	enterToContinue();
 	return head;
 }
+
+
+/**
+ * @brief Edits an ingredient's name by ID.
+ *
+ * @param head The head of the linked list of ingredients.
+ * @param filePath The file path to save the updated list of ingredients.
+ * @return The updated head of the linked list.
+ */
+Ingredient* editIngredient(Ingredient* head, const char* filePath) {
+	if (head == NULL) {
+		printf("No ingredients available to edit.\n");
+		enterToContinue();
+		return head;
+	}
+
+	// Display the list of ingredients
+	listIngredients(head);
+
+	// Prompt for the ID of the ingredient to edit
+	int id;
+	printf("Enter the ID of the ingredient to edit: ");
+	id = getInput();
+	if (id == -2) {
+		handleInputError();
+		enterToContinue();
+		return head;
+	}
+
+	// Find the ingredient with the specified ID
+	Ingredient* current = head;
+	while (current != NULL && current->id != id) {
+		current = current->next;
+	}
+
+	if (current == NULL) {
+		printf("Ingredient with ID %d not found.\n", id);
+		enterToContinue();
+		return head;
+	}
+
+	// Get the new name for the ingredient and validate it
+	char newName[100];
+	while (true) {
+		printf("Enter the new name for the ingredient: ");
+		fgets(newName, sizeof(newName), stdin);
+		newName[strcspn(newName, "\n")] = 0;
+
+		int validName = 1;
+		for (int i = 0; i < strlen(newName); i++) {
+			if (isdigit(newName[i])) {
+				validName = 0;
+				break;
+			}
+		}
+
+		if (validName && strlen(newName) > 0) {
+			break;
+		}
+		else {
+			printf("Invalid ingredient name. Please enter a valid name without numbers.\n");
+			enterToContinue();
+		}
+	}
+
+	// Update the ingredient's name
+	strcpy(current->name, newName);
+
+	// Save updated ingredient list to file
+	saveIngredientsToFile(head, filePath);
+	printf("Ingredient name updated successfully.\n");
+	enterToContinue();
+
+	return head;
+}
+
+/**
+ * @brief Prints the ingredient management menu.
+ *
+ * @return Always returns 1.
+ */
+int printIngredientManagementMenu() {
+	printf("\n+--------------------------------------+\n");
+	printf("|       INGREDIENT MANAGEMENT MENU     |\n");
+	printf("+--------------------------------------+\n");
+	printf("| 1. View Ingredients                  |\n");
+	printf("| 2. Add Ingredient                    |\n");
+	printf("| 3. Remove Ingredient                 |\n");
+	printf("| 4. Edit Ingredient                   |\n");
+	printf("| 5. Exit                              |\n");
+	printf("+--------------------------------------+\n");
+	printf("Please enter a number to select: ");
+
+	return 1;
+}
+
+/**
+ * @brief Prints the ingredient view menu.
+ *
+ * @return Always returns 1.
+ */
+int printIngredientViewMenu() {
+	printf("+--------------------------------------+\n");
+	printf("| 1. Next                              |\n");
+	printf("| 2. Previous                          |\n");
+	printf("| 3. Exit View                         |\n");
+	printf("+--------------------------------------+\n");
+	printf("Please enter a number to select: ");
+	return 1;
+}
+
+/**
+ * @brief Displays the ingredient management menu and handles user interaction.
+ *
+ * @param filePath The file path to save/load ingredients.
+ * @return Always returns 0 when exiting the menu.
+ */
+int ingredientManagementMenu(const char* filePath) {
+	clearScreen();
+	Ingredient* head = loadIngredientsFromFile(filePath);
+	int choice;
+	char name[100];
+	float price;
+	int id;
+
+	while (true) {
+		clearScreen();
+		printIngredientManagementMenu();
+		choice = getInput();
+		if (choice == -2) {
+			handleInputError();
+			enterToContinue();
+			continue;
+		}
+
+		switch (choice) {
+		case 1:
+			clearScreen();
+			// View ingredients
+			if (head == NULL) {
+				printf("No ingredients available.\n");
+				enterToContinue();
+			}
+			else {
+				Ingredient* current = head;
+				int viewChoice;
+				while (true) {
+					clearScreen();
+					printf("Current Ingredient:\n");
+					printf("ID: %d\n", current->id);
+					printf("Name: %s\n", current->name);
+					printf("Price: %.2f\n", current->price);
+					printIngredientViewMenu();
+					viewChoice = getInput();
+					if (viewChoice == -2) {
+						handleInputError();
+						enterToContinue();
+						continue;
+					}
+
+					if (viewChoice == 1 && current->next != NULL) {
+						current = current->next;
+					}
+					else if (viewChoice == 2 && current->prev != NULL) {
+						current = current->prev;
+					}
+					else if (viewChoice == 3) {
+						break;
+					}
+					else {
+						printf("Invalid choice or no more ingredients in that direction.\n");
+						enterToContinue();
+					}
+				}
+			}
+			break;
+
+		case 2:
+			// Get ingredient name and validate it
+			while (true) {
+				clearScreen();
+				printf("Enter ingredient name: ");
+				fgets(name, sizeof(name), stdin);
+				name[strcspn(name, "\n")] = 0;
+
+				int validName = 1;
+				for (int i = 0; i < strlen(name); i++) {
+					if (isdigit(name[i])) {
+						validName = 0;
+						break;
+					}
+				}
+
+				if (validName && strlen(name) > 0) {
+					break;
+				}
+				else {
+					printf("Invalid ingredient name. Please enter a valid name without numbers.\n");
+					enterToContinue();
+				}
+			}
+
+			// Get ingredient price and validate it
+			while (true) {
+				printf("Enter ingredient price: ");
+				if (scanf("%f", &price) != 1 || price < 0) {
+					printf("Invalid price. Please enter a valid positive number.\n");
+					while (getchar() != '\n'); // Clear input buffer
+					enterToContinue();
+				}
+				else {
+					getchar(); // Consume newline character
+					break;
+				}
+			}
+
+			head = addIngredient(head, name, price, filePath);
+			printf("Ingredient added successfully.\n");
+			enterToContinue();
+			break;
+
+		case 3:
+			clearScreen();
+			if (!listIngredients(head))
+			{
+				break;
+			}
+			printf("Enter the ID of the ingredient to remove: ");
+			id = getInput();
+			if (id == -2) {
+				handleInputError();
+				enterToContinue();
+				break;
+			}
+			head = removeIngredient(head, id, filePath);
+			break;
+
+		case 4:
+			head = editIngredient(head, filePath);
+			break;
+
+		case 5:
+			saveIngredientsToFile(head, filePath);
+			printf("Exiting Ingredient Management Menu.\n");
+			enterToContinue();
+			return 0;
+
+		default:
+			printf("Invalid choice. Please try again.\n");
+			enterToContinue();
+			break;
+		}
+	}
+}
