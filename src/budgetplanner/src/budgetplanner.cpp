@@ -102,7 +102,6 @@ int planMeals(const char* pathFileRecipes, const char* pathFileIngredients, doub
     return 1;
 }
 
-
 /**
  * @brief Lists all recipes with their prices
  * @param pathFileRecipes Path to the file containing recipes
@@ -137,7 +136,6 @@ int listRecipesWithPrices(const char* pathFileRecipes, const char* pathFileIngre
     }
     return 1;
 }
-
 
 /**
  * @brief Displays the current budget
@@ -199,4 +197,3 @@ int budgetPlannerMenu(const char* pathFileRecipes, const char* pathFileIngredien
         }
     }
 }
-
