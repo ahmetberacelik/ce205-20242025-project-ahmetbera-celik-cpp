@@ -1,4 +1,4 @@
-# Calculator Project Library Generation and Testing Template
+# Costcalculator Project Library Generation and Testing Template
 
 ## Overview
 

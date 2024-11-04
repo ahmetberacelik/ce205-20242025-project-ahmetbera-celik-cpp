@@ -1,23 +1,23 @@
 /**
- * @file calculator.h
+ * @file costcalculator.h
  * 
  * @brief Provides functions for math. utilities
  */
 
-#ifndef CALCULATOR_H
-#define CALCULATOR_H
+#ifndef COSTCALCULATOR_H
+#define COSTCALCULATOR_H
 
 #include "../../utility/header/commonTypes.h"
 
 namespace Coruh
 {
-    namespace Calculator
+    namespace Costcalculator
     {
         /**
-            @class Calculator
+            @class Costcalculator
             @brief Provides Basic functions for various operations.
         */
-        class Calculator
+        class Costcalculator
         {
         public:
             /**
@@ -59,4 +59,4 @@ namespace Coruh
     }
 }
 
-#endif // CALCULATOR_H
+#endif // COSTCALCULATOR_H
