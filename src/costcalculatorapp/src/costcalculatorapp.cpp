@@ -25,5 +25,5 @@ int main() {
 	const char* pathFileRecipes = "recipes.bin";
 
 	mainMenu(pathFileUsers, pathFileIngredients, pathFileRecipes);
-	return 0;
+	return 0;
 }
