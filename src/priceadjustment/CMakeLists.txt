@@ -21,10 +21,14 @@ source_group("src" FILES ${LIB_SOURCES})
 add_library(${LIBNAME} STATIC ${LIB_HEADERS} ${LIB_SOURCES}) # for dynamic library use SHARED
 
 target_include_directories(${LIBNAME} PUBLIC
+						   ${CMAKE_CURRENT_SOURCE_DIR}/../userauthentication/header
+						   ${CMAKE_CURRENT_SOURCE_DIR}/../ingredientmanagement/header
+						   ${CMAKE_CURRENT_SOURCE_DIR}/../recipecosting/header
+						   ${CMAKE_CURRENT_SOURCE_DIR}/../budgetplanner/header
 						   ${CMAKE_CURRENT_SOURCE_DIR}/header)
 
 # Add any dependencies or compile options specific to crypto
-target_link_libraries(${LIBNAME} PRIVATE)
+target_link_libraries(${LIBNAME} PRIVATE userauthentication ingredientmanagement recipecosting budgetplanner)
 
 # creates preprocessor definition used for library exports
 add_compile_definitions("CORUH_COSTCALCULATOR_LIB_EXPORTS")
