@@ -92,6 +92,9 @@ DA:48,1
 DA:49,1
 DA:50,1
 DA:51,1
+DA:54,1
+DA:55,1
+DA:56,1
 DA:1,1
 end_of_record
 SF:/mnt/c/Users/Bera/Desktop/ce205-final-ahmetbera-celik-yakup-eroglu-hasanbasri-taskin-enes-koy-cpp/src/userauthentication/header/userauthentication.h
@@ -157,9 +160,12 @@ DA:292,1
 DA:329,1
 DA:366,1
 DA:413,1
-DA:485,1
-DA:505,1
-DA:521,1
+DA:486,1
+DA:516,1
+DA:553,1
+DA:589,1
+DA:610,1
+DA:626,1
 DA:1,1
 end_of_record
 SF:/mnt/c/Users/Bera/Desktop/ce205-final-ahmetbera-celik-yakup-eroglu-hasanbasri-taskin-enes-koy-cpp/src/priceadjustment/src/priceadjustment.cpp
