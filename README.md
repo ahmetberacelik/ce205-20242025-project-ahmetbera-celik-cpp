@@ -150,7 +150,9 @@ you can use our public notes
 
 After WSL installation, right click and open WSL bash and run `7-build-app-linux.sh` this will provide similart task with windows and will generate report and libraries on release folder. 
 
+### Our Project Plan
 
+![Project Diagram](project_plan/project_diagram.png)
 
 ----
 

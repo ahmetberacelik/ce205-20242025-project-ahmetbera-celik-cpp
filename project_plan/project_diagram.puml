@@ -1,0 +1,34 @@
+@startgantt
+
+title Recipe Cost Calculator Project Schedule
+
+Project starts 2024-10-25
+
+[Recipe Cost Calculator] lasts 17 days and is colored in Lavender/LightBlue
+
+[Project Initialization and Planning] requires 1 day and starts 2024-10-25 and is colored in LightGreen
+
+[User Authentication] requires 3 days and starts 2024-10-26 and is colored in LightCoral
+[Ingredient Management] requires 2 days and starts 2024-10-28 and is colored in LightPink
+
+[Recipe Costing] requires 3 days and starts 2024-10-30 and is colored in LightSkyBlue
+
+[Price Adjustment] requires 2 days and starts 2024-11-01 and is colored in LightSalmon
+
+[Review and Delivery] requires 4 days and starts 2024-11-05 and is colored in LightGoldenRodYellow
+
+-- Phase Details --
+[1.1 Project Initialization and Planning] requires 1 day and starts 2024-10-25 and is colored in LightGreen
+[2.1 User Authentication and Profile Management Development] requires 2 days and starts 2024-10-26 and is colored in LightCoral
+[2.2 User Authentication Unit Test] requires 1 day and starts 2024-10-28 and is colored in LightCoral
+[3.1 Ingredient Management and Pricing Development] requires 1 day and starts 2024-10-28 and is colored in LightPink
+[3.2 Ingredient Management Unit Test] requires 1 day and starts 2024-10-29 and is colored in LightPink
+[4.1 Recipe Creation and Cost Calculation Development] requires 2 days and starts 2024-10-30 and is colored in LightSkyBlue
+[4.2 Recipe Creation and Cost Calculation Unit Test] requires 1 day and starts 2024-11-01 and is colored in LightSkyBlue
+[5.1 Price Adjustment Development] requires 1 day and starts 2024-11-01 and is colored in LightSalmon
+[5.2 Price Adjustment Unit Test] requires 1 day and starts 2024-11-04 and is colored in LightSalmon
+[6.1 Documentation Writing] requires 1 day and starts 2024-11-05 and is colored in LightGoldenRodYellow
+[6.2 Debugging and Final Checks] requires 1 day and starts 2024-11-06 and is colored in LightGoldenRodYellow
+[6.3 Delivery] requires 1 day and starts 2024-11-07 and is colored in LightGoldenRodYellow
+
+@endgantt
