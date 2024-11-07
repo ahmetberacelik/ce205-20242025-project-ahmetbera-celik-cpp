@@ -150,7 +150,27 @@ you can use our public notes
 
 After WSL installation, right click and open WSL bash and run `7-build-app-linux.sh` this will provide similart task with windows and will generate report and libraries on release folder. 
 
-### Our Project Plan
+### Project Summary:
+This project is a *C/C++* based *console* application that provides users with the ability to manage ingredients, calculate recipe costs, adjust prices, and plan meals within a budget. The project allows users to log ingredients, create recipes with cost calculations, and make budget-friendly meal plans.
+
+1. **User Authentication**: Enables users to create or log into profiles to personalize their experience. This feature is optional but enhances user experience.
+
+2. **Ingredient Management**: Users can log ingredients they commonly use in recipes, update prices, and categorize ingredients.
+
+3. **Recipe Costing**: Users can create recipes by specifying ingredient quantities and units. The total cost of the recipe is calculated based on ingredient prices, and the user can also view the cost per serving.
+
+4. **Price Adjustment**: Provides an option to adjust ingredient costs based on market price changes or personal preferences.
+
+5. **Budget Planner**: Allows users to plan meals and recipes within a specified budget. The application can offer budget recommendations based on user preferences.
+
+### Technical Details:
+- User profiles, ingredient data, recipe details, price adjustments, and budget plans are stored in binary files.
+- A text-based *console* interface is used for managing ingredients, creating recipes, calculating costs, adjusting prices, and planning meals within a budget.
+
+This project provides users with a functional solution for managing recipe costs and planning meals within a budget.
+
+
+### Project Plan
 
 ![Project Diagram](project_plan/project_diagram.png)
 
