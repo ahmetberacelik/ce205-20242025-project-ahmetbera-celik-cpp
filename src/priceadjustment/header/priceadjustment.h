@@ -19,6 +19,9 @@ typedef struct Bucket {
     Ingredient* head;
 } Bucket;
 
+void heapify(Ingredient* ingredients, int n, int i);
+void sortIngredientsMaxHeap(Ingredient* ingredients, int n);
+
 /**
  * @brief Converts a doubly linked list of ingredients to an array.
  * @param pathFileIngredients Path to the ingredient file.
