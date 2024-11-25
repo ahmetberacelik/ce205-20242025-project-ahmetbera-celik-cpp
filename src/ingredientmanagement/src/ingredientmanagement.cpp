@@ -476,7 +476,111 @@ Ingredient* editIngredient(Ingredient* head, const char* filePath) {
 
 	return head;
 }
+/**
+ * @brief KMP preprocessing function to create the LPS (Longest Prefix Suffix) array.
+ *
+ * @param pattern The pattern for which the LPS array is generated.
+ * @param lps The LPS array.
+ * @param m The length of the pattern.
+ */
+void computeLPSArray(const char* pattern, int* lps, int m) {
+	int length = 0;
+	lps[0] = 0;
+	int i = 1;
 
+	while (i < m) {
+		if (pattern[i] == pattern[length]) {
+			length++;
+			lps[i] = length;
+			i++;
+		}
+		else {
+			if (length != 0) {
+				length = lps[length - 1];
+			}
+			else {
+				lps[i] = 0;
+				i++;
+			}
+		}
+	}
+}
+
+/**
+ * @brief KMP string matching function to search for a pattern in the given text.
+ *
+ * @param text The text in which to search for the pattern.
+ * @param pattern The pattern to search for.
+ * @return True if the pattern is found in the text, otherwise false.
+ */
+bool KMPSearch(const char* text, const char* pattern) {
+	int n = strlen(text);
+	int m = strlen(pattern);
+	int* lps = (int*)malloc(m * sizeof(int));
+
+	computeLPSArray(pattern, lps, m);
+
+	int i = 0; // index for text
+	int j = 0; // index for pattern
+	while (i < n) {
+		if (pattern[j] == text[i]) {
+			i++;
+			j++;
+		}
+
+		if (j == m) {
+			free(lps);
+			return true;
+		}
+		else if (i < n && pattern[j] != text[i]) {
+			if (j != 0) {
+				j = lps[j - 1];
+			}
+			else {
+				i++;
+			}
+		}
+	}
+	free(lps);
+	return false;
+}
+
+/**
+ * @brief Searches for an ingredient by name using the KMP algorithm.
+ *
+ * @param head The head of the linked list of ingredients.
+ */
+void searchIngredientByKMP(Ingredient* head) {
+	if (head == NULL) {
+		printf("No ingredients available to search.\n");
+		enterToContinue();
+		return;
+	}
+
+	char searchName[100];
+	printf("Enter the ingredient name to search: ");
+	fgets(searchName, sizeof(searchName), stdin);
+	searchName[strcspn(searchName, "\n")] = 0;
+
+	Ingredient* current = head;
+	bool found = false;
+	while (current != NULL) {
+		if (KMPSearch(current->name, searchName)) {
+			printf("Ingredient found:\n");
+			printf("ID: %d\n", current->id);
+			printf("Name: %s\n", current->name);
+			printf("Price: %.2f\n", current->price);
+			found = true;
+			break;
+		}
+		current = current->next;
+	}
+
+	if (!found) {
+		printf("Ingredient '%s' not found in the list.\n", searchName);
+	}
+	enterToContinue();
+}
 /**
  * @brief Prints the ingredient management menu.
  *
@@ -490,7 +594,8 @@ int printIngredientManagementMenu() {
 	printf("| 2. Add Ingredient                    |\n");
 	printf("| 3. Remove Ingredient                 |\n");
 	printf("| 4. Edit Ingredient                   |\n");
-	printf("| 5. Exit                              |\n");
+	printf("| 5. Search Ingredient by Name (KMP)   |\n");
+	printf("| 6. Exit                              |\n");
 	printf("+--------------------------------------+\n");
 	printf("Please enter a number to select: ");
 
@@ -643,11 +748,14 @@ int ingredientManagementMenu(const char* filePath) {
 			break;
 
 		case 5:
+			clearScreen();
+			searchIngredientByKMP(head);
+			break;
+		case 6:
 			saveIngredientsToFile(head, filePath);
 			printf("Exiting Ingredient Management Menu.\n");
 			enterToContinue();
 			return 0;
-
 		default:
 			printf("Invalid choice. Please try again.\n");
 			enterToContinue();

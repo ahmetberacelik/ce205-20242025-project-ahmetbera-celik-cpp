@@ -47,23 +47,34 @@ int ConvertDoubleLinkToArray(const char* pathFileIngredients, Ingredient** baseI
  * @param pathFileIngredients Path to the ingredient file.
  * @return Total number of ingredients printed.
  */
+ /**
+  * @brief Prints the ingredients loaded from a file to the console in descending order of price.
+  * @param pathFileIngredients Path to the ingredient file.
+  * @return Total number of ingredients printed.
+  */
 int PrintIngredientsToConsole(const char* pathFileIngredients) {
 	// Find the total number of ingredients
 	Ingredient* ingredientsArray;
 	int count = ConvertDoubleLinkToArray(pathFileIngredients, &ingredientsArray);
 
+	if (count == -1) {
+		return 0;
+	}
+
+	// Sort ingredients using Max Heap to display them in descending order of price
+	sortIngredientsMaxHeap(ingredientsArray, count);
 
 	// Write the ingredients to the console
-	printf("Ingredients:\n");
+	printf("Ingredients (sorted by price in descending order):\n");
 	for (int i = 0; i < count; i++) {
 		printf("+--------------------------------------+\n");
 		printf("| Ingredient ID: %-5d                   \n", ingredientsArray[i].id);
 		printf("| Name         : %-20s |\n", ingredientsArray[i].name);
 		printf("| Price        : $%-7.2f           \n", ingredientsArray[i].price);
 		printf("+--------------------------------------+\n");
-
 	}
 
+	free(ingredientsArray);
 	return count;
 }
 /**
@@ -83,13 +94,68 @@ bool isPrime(int number) {
  * @param number The starting number.
  * @return The next prime number.
  */
-
 int findNextPrime(int number) {
 	while (!isPrime(number)) {
 		number++;
 	}
 	return number;
 }
+
+/**
+ * @brief Heapify function for Max Heap.
+ * @param ingredients Array of ingredients.
+ * @param n Size of the array.
+ * @param i Index of the root element.
+ */
+void heapify(Ingredient* ingredients, int n, int i) {
+	int largest = i; // Initialize largest as root
+	int left = 2 * i + 1;
+	int right = 2 * i + 2;
+
+	// If left child is larger than root
+	if (left < n && ingredients[left].price > ingredients[largest].price) {
+		largest = left;
+	}
+
+	// If right child is larger than largest so far
+	if (right < n && ingredients[right].price > ingredients[largest].price) {
+		largest = right;
+	}
+
+	// If largest is not root
+	if (largest != i) {
+		Ingredient temp = ingredients[i];
+		ingredients[i] = ingredients[largest];
+		ingredients[largest] = temp;
+
+		// Recursively heapify the affected sub-tree
+		heapify(ingredients, n, largest);
+	}
+}
+
+/**
+ * @brief Sorts the ingredients in descending order using Max Heap.
+ * @param ingredients Array of ingredients.
+ * @param n Total number of ingredients.
+ */
+void sortIngredientsMaxHeap(Ingredient* ingredients, int n) {
+	// Build heap (rearrange array)
+	for (int i = n / 2 - 1; i >= 0; i--) {
+		heapify(ingredients, n, i);
+	}
+
+	// Extract elements from heap one by one
+	for (int i = n - 1; i > 0; i--) {
+		// Move current root to end
+		Ingredient temp = ingredients[0];
+		ingredients[0] = ingredients[i];
+		ingredients[i] = temp;
+
+		// Call max heapify on the reduced heap
+		heapify(ingredients, i, 0);
+	}
+}
+
 /**
  * @brief Searches for an ingredient using linear probing.
  * @param ingredients Array of ingredients.
@@ -97,7 +163,6 @@ int findNextPrime(int number) {
  * @param ingredientId The ID of the ingredient to search for.
  * @return Pointer to the ingredient if found, otherwise NULL.
  */
-
 Ingredient* linearProbingSearch(Ingredient* ingredients, int totalIngredient, int ingredientId) {
 	for (int i = 0; i < totalIngredient; i++) {
 		if (ingredients[i].id == ingredientId) {
@@ -221,13 +286,6 @@ Ingredient* bucketSearch(Bucket* buckets, int bucketSize, int ingredientId) {
 	}
 	return NULL;
 }
-/**
- * @brief Searches for an ingredient using a hashtable approach.
- * @param ingredients Array of ingredients.
- * @param totalIngredient Total number of ingredients in the array.
- * @param ingredientId The ID of the ingredient to search for.
- * @return Pointer to the ingredient if found, otherwise NULL.
- */
 
 /**
  * @brief Adjusts the price of an ingredient.
@@ -319,7 +377,8 @@ int adjustIngredientPrice(const char* pathFileIngredients) {
 			if (ingredient != NULL) {
 				for (int i = 0; i < totalIngredient; i++) {
 					if (ingredients[i].id == ingredient->id) {
-						ingredients[i] = *ingredient;break;
+						ingredients[i] = *ingredient;
+						break;
 					}
 				}
 			}
@@ -367,7 +426,12 @@ int adjustIngredientPrice(const char* pathFileIngredients) {
 
 		// Save the updated ingredients to file
 		FILE* file = fopen(pathFileIngredients, "wb");
-		if (!file) { printf("File could not be opened");getchar();enterToContinue();break; }
+		if (!file) {
+			printf("File could not be opened");
+			getchar();
+			enterToContinue();
+			break;
+		}
 		fwrite(ingredients, sizeof(Ingredient), totalIngredient, file);
 		fclose(file);
 
@@ -380,12 +444,12 @@ int adjustIngredientPrice(const char* pathFileIngredients) {
 	free(ingredients);
 	return 0;
 }
+
 /**
  * @brief Resets the prices of all ingredients.
  * @param pathFileIngredients Path to the ingredient file.
  * @return 1 if successful.
  */
-
 int resetIngredientPrice(const char* pathFileIngredients) {
 	clearScreen();
 	Ingredient* ingredients;
@@ -420,6 +484,7 @@ int resetIngredientPrice(const char* pathFileIngredients) {
 	free(ingredients);
 	return 1;
 }
+
 /**
  * @brief Displays a menu for adjusting ingredient prices.
  * @param pathFileIngredients Path to the ingredient file.
