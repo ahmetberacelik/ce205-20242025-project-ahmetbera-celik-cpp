@@ -280,9 +280,8 @@ int adjustIngredientPrice(const char* pathFileIngredients) {
 		printf("| 5. Use of Buckets                    |\n");
 		printf("| 6. Linear Quotient                   |\n");
 		printf("| 7. Brent's Method                    |\n");
-		printf("| 8. Hashtable                         |\n");
 		printf("+--------------------------------------+\n");
-		printf("Enter your choice (1-8): ");
+		printf("Enter your choice (1-7): ");
 
 		scanf("%d", &algorithmChoice);
 
@@ -347,9 +346,6 @@ int adjustIngredientPrice(const char* pathFileIngredients) {
 			break;
 		case 7:
 			ingredient = brentMethodSearch(ingredients, totalIngredient, ingredientId);
-			break;
-		case 8:
-			ingredient = hashtableSearch(ingredients, totalIngredient, ingredientId);
 			break;
 		default:
 			printf("Invalid choice");
