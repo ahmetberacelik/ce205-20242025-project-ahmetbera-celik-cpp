@@ -288,20 +288,6 @@ Ingredient* bucketSearch(Bucket* buckets, int bucketSize, int ingredientId) {
 }
 
 /**
- * @brief Searches for an ingredient using a hashtable approach.
- * @param ingredients Array of ingredients.
- * @param totalIngredient Total number of ingredients in the array.
- * @param ingredientId The ID of the ingredient to search for.
- * @return Pointer to the ingredient if found, otherwise NULL.
- */
-Ingredient* hashtableSearch(Ingredient* ingredients, int totalIngredient, int ingredientId) {
-	int index = ingredientId % totalIngredient;
-	while (ingredients[index].id != -1) {
-		if (ingredients[index].id == ingredientId) { return &ingredients[index]; }index = (index + 1) % totalIngredient;
-	}return NULL;
-}
-
-/**
  * @brief Adjusts the price of an ingredient.
  * @param pathFileIngredients Path to the ingredient file.
  * @return 1 if the ingredient price was successfully updated, otherwise 0.
@@ -347,9 +333,8 @@ int adjustIngredientPrice(const char* pathFileIngredients) {
 		printf("| 5. Use of Buckets                    |\n");
 		printf("| 6. Linear Quotient                   |\n");
 		printf("| 7. Brent's Method                    |\n");
-		printf("| 8. Hashtable                         |\n");
 		printf("+--------------------------------------+\n");
-		printf("Enter your choice (1-8): ");
+		printf("Enter your choice (1-7): ");
 
 		scanf("%d", &algorithmChoice);
 
@@ -415,9 +400,6 @@ int adjustIngredientPrice(const char* pathFileIngredients) {
 			break;
 		case 7:
 			ingredient = brentMethodSearch(ingredients, totalIngredient, ingredientId);
-			break;
-		case 8:
-			ingredient = hashtableSearch(ingredients, totalIngredient, ingredientId);
 			break;
 		default:
 			printf("Invalid choice");
