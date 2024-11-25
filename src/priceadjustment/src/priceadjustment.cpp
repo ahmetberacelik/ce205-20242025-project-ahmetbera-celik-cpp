@@ -228,12 +228,7 @@ Ingredient* bucketSearch(Bucket* buckets, int bucketSize, int ingredientId) {
  * @param ingredientId The ID of the ingredient to search for.
  * @return Pointer to the ingredient if found, otherwise NULL.
  */
-Ingredient* hashtableSearch(Ingredient* ingredients, int totalIngredient, int ingredientId) {
-	int index = ingredientId % totalIngredient;
-	while (ingredients[index].id != -1) {
-		if (ingredients[index].id == ingredientId) { return &ingredients[index]; }index = (index + 1) % totalIngredient;
-	}return NULL;
-}
+
 /**
  * @brief Adjusts the price of an ingredient.
  * @param pathFileIngredients Path to the ingredient file.
