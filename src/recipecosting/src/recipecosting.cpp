@@ -12,7 +12,196 @@
 #include <queue>
 #include <stack>
 #include <string>
+#include <limits.h>
 #include <unordered_map>
+
+ /**
+  * @brief Initializes the graph with the given number of nodes.
+  *
+  * This function initializes the adjacency list, visited nodes, discovery times,
+  * low links, and stack-related attributes of the graph.
+  *
+  * @param graph Pointer to the Graph structure to be initialized.
+  * @param nodeCount The total number of nodes in the graph.
+  */
+void initializeGraph(Graph* graph, int nodeCount) {
+	for (int i = 0; i < nodeCount; i++) {
+		graph->adjList[i] = NULL;
+		graph->visited[i] = 0;
+		graph->discoveryTime[i] = -1;
+		graph->lowLink[i] = -1;
+		graph->inStack[i] = 0;
+	}
+	graph->time = 0;
+	graph->stackTop = -1;
+}
+
+/**
+ * @brief Adds a directed edge from the source node to the destination node.
+ *
+ * This function creates a new edge from the source node to the destination node,
+ * linking the recipes in the graph structure.
+ *
+ * @param graph Pointer to the Graph structure.
+ * @param src The source node index.
+ * @param dest The destination node index.
+ */
+void addEdge(Graph* graph, int src, int dest) {
+	Node* newNode = (Node*)malloc(sizeof(Node));
+	newNode->recipeIndex = dest;
+	newNode->next = graph->adjList[src];
+	graph->adjList[src] = newNode;
+}
+
+/**
+ * @brief Pushes a node onto the stack.
+ *
+ * This function adds the given node to the stack and marks it as in-stack.
+ *
+ * @param graph Pointer to the Graph structure.
+ * @param node The node to be pushed onto the stack.
+ */
+void push(Graph* graph, int node) {
+	graph->stack[++graph->stackTop] = node;
+	graph->inStack[node] = 1;
+}
+
+/**
+ * @brief Pops a node from the stack.
+ *
+ * This function removes the top node from the stack and returns it.
+ * It also marks the node as no longer in the stack.
+ *
+ * @param graph Pointer to the Graph structure.
+ * @return The node that was popped from the stack.
+ */
+int pop(Graph* graph) {
+	int node = graph->stack[graph->stackTop--];
+	graph->inStack[node] = 0;
+	return node;
+}
+
+/**
+ * @brief Performs a detailed Tarjan's Strongly Connected Components (SCC) analysis.
+ *
+ * This function uses Tarjan's algorithm to find SCCs in a graph and prints the
+ * recipes in each SCC. It recursively explores the graph to determine the
+ * discovery times and low links of nodes.
+ *
+ * @param graph Pointer to the Graph structure.
+ * @param node The starting node for the analysis.
+ * @param recipes Array of Recipe structures containing recipe data.
+ */
+void tarjanSCCDetailed(Graph* graph, int node, Recipe recipes[]) {
+	graph->discoveryTime[node] = graph->lowLink[node] = graph->time++;
+	push(graph, node);
+
+	Node* current = graph->adjList[node];
+	while (current != NULL) {
+		int neighbor = current->recipeIndex;
+		if (graph->discoveryTime[neighbor] == -1) {
+			tarjanSCCDetailed(graph, neighbor, recipes);
+			graph->lowLink[node] = (graph->lowLink[node] < graph->lowLink[neighbor]) ? graph->lowLink[node] : graph->lowLink[neighbor];
+		}
+		else if (graph->inStack[neighbor]) {
+			graph->lowLink[node] = (graph->lowLink[node] < graph->discoveryTime[neighbor]) ? graph->lowLink[node] : graph->discoveryTime[neighbor];
+		}
+		current = current->next;
+	}
+
+	// If node is the root of an SCC
+	if (graph->lowLink[node] == graph->discoveryTime[node]) {
+		printf("Recipes in this SCC:\n");
+		int sccNode;
+		do {
+			sccNode = pop(graph);
+			printf("- Recipe %d: %s (Category: %d, Ingredients: ",
+				sccNode + 1, // Recipe ID (1-based indexing)
+				recipes[sccNode].name,
+				recipes[sccNode].category);
+			for (int i = 0; i < recipes[sccNode].ingredientCount; i++) {
+				printf("%d ", recipes[sccNode].ingredients[i]); // Ingredient IDs
+			}
+			printf(")\n");
+		} while (sccNode != node);
+		printf("\n");
+	}
+}
+
+/**
+ * @brief Builds a graph from the provided recipes.
+ *
+ * This function constructs a graph where nodes represent recipes, and edges are
+ * added between nodes that share ingredients or belong to the same category.
+ *
+ * @param graph Pointer to the Graph structure to be built.
+ * @param recipes Array of Recipe structures containing recipe data.
+ * @param recipeCount The number of recipes in the array.
+ */
+void buildGraphFromRecipes(Graph* graph, Recipe recipes[], int recipeCount) {
+	for (int i = 0; i < recipeCount; i++) {
+		for (int j = 0; j < recipeCount; j++) {
+			if (i != j) {
+				// Check if recipes i and j share ingredients or belong to the same category
+				if (recipes[i].category == recipes[j].category) {
+					addEdge(graph, i, j); // Add edge for same category
+				}
+				else {
+					for (int k = 0; k < recipes[i].ingredientCount; k++) {
+						for (int l = 0; l < recipes[j].ingredientCount; l++) {
+							if (recipes[i].ingredients[k] == recipes[j].ingredients[l]) {
+								addEdge(graph, i, j); // Add edge for shared ingredient
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+/**
+ * @brief Analyzes the Strongly Connected Components (SCCs) of recipes in a graph.
+ *
+ * This function loads recipes from a file, builds a graph, and then applies
+ * Tarjan's SCC algorithm to identify and print SCCs of recipes that are
+ * interconnected through shared ingredients or belong to the same category.
+ *
+ * @param pathFileRecipes Path to the file containing recipe data.
+ */
+void analyzeSCC(const char* pathFileRecipes) {
+	Recipe recipes[MAX_RECIPES];
+	int recipeCount = loadRecipesFromFile(pathFileRecipes, recipes, MAX_RECIPES);
+
+	if (recipeCount == 0) {
+		printf("No recipes available for analysis.\n");
+		enterToContinue();
+		return;
+	}
+
+	// Initialize the graph
+	Graph graph;
+	initializeGraph(&graph, recipeCount);
+
+	// Build the graph from recipes
+	buildGraphFromRecipes(&graph, recipes, recipeCount);
+
+	// Run Tarjan's SCC algorithm
+	printf("+--------------------------------------+\n");
+	printf("|   STRONGLY CONNECTED COMPONENTS      |\n");
+	printf("+--------------------------------------+\n");
+
+	int sccCounter = 0; // Counter for SCC groups
+	for (int i = 0; i < recipeCount; i++) {
+		if (graph.discoveryTime[i] == -1) {
+			printf("\nSCC Group %d:\n", ++sccCounter);
+			tarjanSCCDetailed(&graph, i, recipes); // Call detailed SCC function
+		}
+	}
+
+	enterToContinue();
+}
 
 /**
   * @brief Creates a new B+ tree node.
@@ -507,7 +696,7 @@ void saveRecipesToFile(const char* pathFileRecipes, Recipe recipes[], int recipe
 		fprintf(file, "%s\n", recipes[i].name);
 		fprintf(file, "%d\n", recipes[i].category);
 		for (int j = 0; j < recipes[i].ingredientCount; j++) {
-			fprintf(file, "%d ", recipes[i].ingredients[j]);
+			fprintf(file, "%d", recipes[i].ingredients[j]);
 		}
 		fprintf(file, "\n");
 	}
@@ -846,14 +1035,16 @@ int recipeCostingMenu(const char* pathFileIngredients, const char* pathFileRecip
 		printf("| 3. Calculate Recipe Cost             |\n");
 		printf("| 4. Search Recipe by Category         |\n");
 		printf("| 5. Analyze Ingredient Usage          |\n");
-		printf("| 6. Exit                              |\n");
+		printf("| 6. Analyze SCC in Recipe Graph       |\n"); // New menu option
+		printf("| 7. Exit                              |\n");
 		printf("+--------------------------------------+\n");
 		printf("Enter your choice: ");
 
-
 		choice = getInput();
 		if (choice == -2) {
-			handleInputError(); enterToContinue(); continue;
+			handleInputError();
+			enterToContinue();
+			continue;
 		}
 
 		switch (choice) {
@@ -894,6 +1085,9 @@ int recipeCostingMenu(const char* pathFileIngredients, const char* pathFileRecip
 			analyzeIngredientUsage(pathFileRecipes, pathFileIngredients);
 			break;
 		case 6:
+			analyzeSCC(pathFileRecipes); // Call the new SCC function
+			break;
+		case 7:
 			return 1;
 		default:
 			clearScreen();
@@ -903,4 +1097,3 @@ int recipeCostingMenu(const char* pathFileIngredients, const char* pathFileRecip
 		}
 	}
 }
-

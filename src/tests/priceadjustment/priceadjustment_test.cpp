@@ -75,7 +75,7 @@ protected:
 
 TEST_F(PriceadjustmentTest, HandlesAdjustIngredientPrice) {
 	createIngredients();
-	const char* inputSequence = "-1\n\n1\n1\n9\n1\n1\n1\n\n1\n1\n2\n2\n\n1\n1\n3\n3\n\n1\n1\n4\n4\n\n1\n1\n5\n5\n\n1\n1\n6\n6\n\n1\n1\n7\n7\n\n1\n1\n8\n8\n\n3\n";
+	const char* inputSequence = "-1\n\n1\n1\n9\n1\n1\n1\n\n1\n1\n2\n2\n\n1\n1\n3\n3\n\n1\n1\n4\n4\n\n1\n1\n5\n5\n\n1\n1\n6\n6\n\n1\n1\n7\n7\n\n3\n";
 	//1\n1\n1\n\n1\n2\n2\n\n1\n3\n3\n\n1\n4\n4\n\n1\n5\n5\n\n1\n6\n6\n\n1\n7\n7\n\n1\n8\n8\n\n
 	simulateUserInput(inputSequence);
 
@@ -202,7 +202,7 @@ TEST_F(PriceadjustmentTest, PriceAdjustmentSeventhAlgorithm) {
 }
 TEST_F(PriceadjustmentTest, PriceAdjustmentEighthAlgorithm) {
 	createIngredients();
-	const char* inputSequence = "1\n1\n8\n8\n\n3\n";
+	const char* inputSequence = "1\n1\n7\n7\n\n3\n";
 	//9\n8\n\n1\n
 	simulateUserInput(inputSequence);
 
