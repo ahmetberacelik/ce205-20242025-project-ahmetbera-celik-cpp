@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <limits.h>
 
- /**
+/**
   * @brief Creates a new Huffman tree node.
   *
   * @param character The character to store in the node.
@@ -402,7 +402,6 @@ Ingredient* removeIngredient(Ingredient* head, int id, const char* filePath) {
 	return head;
 }
 
-
 /**
  * @brief Edits an ingredient's name by ID.
  *
@@ -476,6 +475,7 @@ Ingredient* editIngredient(Ingredient* head, const char* filePath) {
 
 	return head;
 }
+
 /**
  * @brief KMP preprocessing function to create the LPS (Longest Prefix Suffix) array.
  *
@@ -581,6 +581,7 @@ void searchIngredientByKMP(Ingredient* head) {
 	}
 	enterToContinue();
 }
+
 /**
  * @brief Prints the ingredient management menu.
  *
