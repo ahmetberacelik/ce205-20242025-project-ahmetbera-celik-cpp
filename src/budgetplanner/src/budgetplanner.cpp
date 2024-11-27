@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
- /**
+/**
   * @brief Plans meals and updates the budget
   * @param pathFileRecipes Path to the file containing recipes
   * @param pathFileIngredients Path to the file containing ingredients

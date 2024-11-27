@@ -8,7 +8,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
- /**
+
+/**
   * @brief Converts a doubly linked list of ingredients to an array.
   * @param pathFileIngredients Path to the ingredient file.
   * @param baseIngredients Pointer to the array of ingredients to be populated.
@@ -42,12 +43,8 @@ int ConvertDoubleLinkToArray(const char* pathFileIngredients, Ingredient** baseI
 
 	return count;
 }
+
 /**
- * @brief Prints the ingredients loaded from a file to the console.
- * @param pathFileIngredients Path to the ingredient file.
- * @return Total number of ingredients printed.
- */
- /**
   * @brief Prints the ingredients loaded from a file to the console in descending order of price.
   * @param pathFileIngredients Path to the ingredient file.
   * @return Total number of ingredients printed.
@@ -77,6 +74,7 @@ int PrintIngredientsToConsole(const char* pathFileIngredients) {
 	free(ingredientsArray);
 	return count;
 }
+
 /**
  * @brief Checks if a given number is a prime number.
  * @param number The number to check.
@@ -89,6 +87,7 @@ bool isPrime(int number) {
 	}
 	return true;
 }
+
 /**
  * @brief Finds the next prime number greater than or equal to a given number.
  * @param number The starting number.

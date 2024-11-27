@@ -10,17 +10,17 @@
 #include <stdio.h>      
 #include <stdlib.h>     
 #include <string.h>
+#include <ctype.h>     
+#include <stdbool.h> 
+
 #ifdef _WIN32
 #include <conio.h> // For Windows
 #else
 #include <termios.h> // For Linux
 #include <unistd.h>
 #endif
-#include <ctype.h>     
-#include <stdbool.h> 
 
-
- /**
+/**
   * @brief Defines the logged-in user for the current session.
   */
 User loggedUser;
