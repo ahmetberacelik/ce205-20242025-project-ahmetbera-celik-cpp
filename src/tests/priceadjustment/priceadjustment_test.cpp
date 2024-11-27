@@ -95,7 +95,7 @@ TEST_F(PriceadjustmentTest, InvalidInput) {
 
 	EXPECT_EQ(result, 1);
 }
-TEST_F(PriceadjustmentTest, PriceAdjustmentMenuInvalýdInput) {
+TEST_F(PriceadjustmentTest, PriceAdjustmentMenuInvalidInput) {
 	const char* inputSequence = "-1\n\n3\n";
 	simulateUserInput(inputSequence);
 
@@ -113,7 +113,7 @@ TEST_F(PriceadjustmentTest, PriceAdjustmentNoIngredients) {
 
 	EXPECT_EQ(result, 1);
 }
-TEST_F(PriceadjustmentTest, PriceAdjustmentInvalýdIngredientId) {
+TEST_F(PriceadjustmentTest, PriceAdjustmentInvalidIngredientId) {
 	createIngredients();
 	const char* inputSequence = "1\n-1\n3\n";
 	simulateUserInput(inputSequence);
@@ -123,7 +123,7 @@ TEST_F(PriceadjustmentTest, PriceAdjustmentInvalýdIngredientId) {
 
 	EXPECT_EQ(result, 1);
 }
-TEST_F(PriceadjustmentTest, PriceAdjustmentInvalýdAndFýrstAlgorithm) {
+TEST_F(PriceadjustmentTest, PriceAdjustmentInvalidAndFirstAlgorithm) {
 	createIngredients();
 	const char* inputSequence = "1\n1\n9\n9\n1\n\n1\n1\n1\n1\n\n3\n";
 	//1\n1\n2\n2\n\n1\n1\n3\n3\n\n1\n1\n4\n4\n\n1\n1\n5\n5\n\n1\n1\n6\n6\n\n1\n1\n7\n7\n\n1\n1\n8\n8\n\n3\n

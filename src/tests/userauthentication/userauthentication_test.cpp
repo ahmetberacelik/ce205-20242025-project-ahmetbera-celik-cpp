@@ -252,7 +252,7 @@ TEST_F(UserauthenticationTest, mainMenuShouldEnterEveryCase) {
 	EXPECT_EQ(result, 0);
 }
 TEST_F(UserauthenticationTest, userOperationsShouldEnterEveryCase) {
-	simulateUserInput("qwe\n\n\n6\n\n1\n5\n\n2\n6\n3\n3\n4\n123\n3\n5\n");
+	simulateUserInput("qwe\n\n\n6\n\n1\n6\n\n2\n6\n3\n3\n4\n123\n3\n5\n");
 
 	int result = userOperations(pathFileIngredients, pathFileRecieps);
 
@@ -282,6 +282,6 @@ int main(int argc, char** argv) {
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 #else
-	return 0;
+	return 0;
 #endif
 }

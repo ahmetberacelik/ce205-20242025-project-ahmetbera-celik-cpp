@@ -39,4 +39,4 @@ int budgetPlannerMenu(const char* pathFileRecipes, const char* pathFileIngredien
  */
 int viewBudget(double budget);
 
-#endif // BUDGETPLANNER_H
+#endif // BUDGETPLANNER_H

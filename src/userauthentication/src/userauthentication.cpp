@@ -6,7 +6,7 @@
 #include "../../ingredientmanagement/header/ingredientmanagement.h"
 #include "../../recipecosting/header/recipecosting.h"
 #include "../../budgetplanner/header/budgetplanner.h"
-
+#include "../../priceadjustment/header/priceadjustment.h"
 #include <stdio.h>      
 #include <stdlib.h>     
 #include <string.h>
@@ -18,7 +18,7 @@
 #endif
 #include <ctype.h>     
 #include <stdbool.h> 
-#include "../../priceadjustment/header/priceadjustment.h"
+
 
  /**
   * @brief Defines the logged-in user for the current session.

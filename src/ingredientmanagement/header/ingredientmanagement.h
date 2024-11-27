@@ -17,6 +17,7 @@ typedef struct Ingredient {
     float price; /**< Ingredient price. */
     struct Ingredient* prev; /**< Pointer to the previous ingredient in the list. */
     struct Ingredient* next; /**< Pointer to the next ingredient in the list. */
+    struct Ingredient* npx; /**< Pointer to the npx ingredient in the list. */
 } Ingredient;
 
 /**
@@ -49,5 +50,10 @@ HuffmanTreeNode* constructHuffmanTree(const int freq[256]);
 void generateHuffmanCodes(HuffmanTreeNode* root, char* code, int depth, char codes[256][256]);
 void encodeString(const char* str, const char codes[256][256], char* encodedStr);
 void decodeString(HuffmanTreeNode* root, const char* encodedStr, char* decodedStr);
+
+
+void computeLPSArray(const char* pattern, int* lps, int m);
+bool KMPSearch(const char* text, const char* pattern);
+void searchIngredientByKMP(Ingredient* head);
 
 #endif // INGREDIENTMANAGEMENT_H
