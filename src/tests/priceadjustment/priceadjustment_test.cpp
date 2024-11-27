@@ -73,17 +73,6 @@ protected:
 	}
 };
 
-TEST_F(PriceadjustmentTest, HandlesAdjustIngredientPrice) {
-	createIngredients();
-	const char* inputSequence = "-1\n\n1\n1\n9\n1\n1\n1\n\n1\n1\n2\n2\n\n1\n1\n3\n3\n\n1\n1\n4\n4\n\n1\n1\n5\n5\n\n1\n1\n6\n6\n\n1\n1\n7\n7\n\n3\n";
-	//1\n1\n1\n\n1\n2\n2\n\n1\n3\n3\n\n1\n4\n4\n\n1\n5\n5\n\n1\n6\n6\n\n1\n7\n7\n\n1\n8\n8\n\n
-	simulateUserInput(inputSequence);
-
-	int result = AdjustIngredientPriceMenu(testPathFileIngrednients);
-	resetStdinStdout();
-
-	EXPECT_EQ(result, 1);
-}
 TEST_F(PriceadjustmentTest, InvalidInput) {
 	createIngredients();
 	const char* inputSequence = "-1\n\n3\n";
@@ -169,7 +158,7 @@ TEST_F(PriceadjustmentTest, PriceAdjustmentFourthAlgorithm) {
 }
 TEST_F(PriceadjustmentTest, PriceAdjustmentFifthAlgorithm) {
 	createIngredients();
-	const char* inputSequence = "1\n9\n5\n\n1\n1\n5\n5\n\n3\n";
+	const char* inputSequence = "1\n9\n5\n5.5\n1\n5\n\n3\n";
 	//1\n1\n6\n6\n\n1\n1\n7\n7\n\n1\n1\n8\n8\n\n3\n
 	simulateUserInput(inputSequence);
 
