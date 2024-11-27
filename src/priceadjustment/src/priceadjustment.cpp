@@ -8,8 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-
-/**
+ /**
   * @brief Converts a doubly linked list of ingredients to an array.
   * @param pathFileIngredients Path to the ingredient file.
   * @param baseIngredients Pointer to the array of ingredients to be populated.
@@ -43,8 +42,12 @@ int ConvertDoubleLinkToArray(const char* pathFileIngredients, Ingredient** baseI
 
 	return count;
 }
-
 /**
+ * @brief Prints the ingredients loaded from a file to the console.
+ * @param pathFileIngredients Path to the ingredient file.
+ * @return Total number of ingredients printed.
+ */
+ /**
   * @brief Prints the ingredients loaded from a file to the console in descending order of price.
   * @param pathFileIngredients Path to the ingredient file.
   * @return Total number of ingredients printed.
@@ -74,7 +77,6 @@ int PrintIngredientsToConsole(const char* pathFileIngredients) {
 	free(ingredientsArray);
 	return count;
 }
-
 /**
  * @brief Checks if a given number is a prime number.
  * @param number The number to check.
@@ -87,7 +89,6 @@ bool isPrime(int number) {
 	}
 	return true;
 }
-
 /**
  * @brief Finds the next prime number greater than or equal to a given number.
  * @param number The starting number.
@@ -198,7 +199,11 @@ Ingredient* quadraticProbingSearch(Ingredient* ingredients, int totalIngredient,
  */
 Ingredient* doubleHashingSearch(Ingredient* ingredients, int totalIngredient, int ingredientId) {
 	int hash1 = ingredientId % totalIngredient;
-	int hash2 = 1 + (ingredientId % (totalIngredient - 1));
+	int hash2 = 1;
+	if (totalIngredient > 1) {
+		hash2 += ingredientId % (totalIngredient - 1);
+	}
+
 	for (int i = 0; i < totalIngredient; i++) {
 		int index = (hash1 + i * hash2) % totalIngredient;
 		if (ingredients[index].id == ingredientId) {
@@ -254,7 +259,10 @@ Ingredient* linearQuotientSearch(Ingredient* ingredients, int totalIngredient, i
  */
 Ingredient* brentMethodSearch(Ingredient* ingredients, int totalIngredient, int ingredientId) {
 	int hash1 = ingredientId % totalIngredient;
-	int hash2 = 1 + (ingredientId % (totalIngredient - 1));
+	int hash2 = 1;
+	if (totalIngredient > 1) {
+		hash2 += ingredientId % (totalIngredient - 1);
+	}
 	int bestIndex = hash1;
 	for (int i = 0; i < totalIngredient; i++) {
 		int index = (hash1 + i * hash2) % totalIngredient;
@@ -262,10 +270,13 @@ Ingredient* brentMethodSearch(Ingredient* ingredients, int totalIngredient, int 
 			return &ingredients[index];
 		}
 		// Brent's Method: swap if we find a shorter path
-		if (i < (bestIndex - hash1) % totalIngredient) { bestIndex = index; }
+		if (i < (bestIndex - hash1) % totalIngredient) {
+			bestIndex = index;
+		}
 	}
 	return (ingredients[bestIndex].id == ingredientId) ? &ingredients[bestIndex] : NULL;
 }
+
 
 /**
  * @brief Searches for an ingredient within a bucket.
@@ -274,11 +285,12 @@ Ingredient* brentMethodSearch(Ingredient* ingredients, int totalIngredient, int 
  * @param ingredientId The ID of the ingredient to search for.
  * @return Pointer to the ingredient if found, otherwise NULL.
  */
-Ingredient* bucketSearch(Bucket* buckets, int bucketSize, int ingredientId) {
+Ingredient* bucketSearch(Bucket* buckets, int bucketSize, int ingredientId, float newPrice) {
 	int bucketIndex = ingredientId % bucketSize;
 	Ingredient* current = buckets[bucketIndex].head;
 	while (current != NULL) {
 		if (current->id == ingredientId) {
+			current->price = newPrice; // Update the price of the ingredient
 			return current;
 		}
 		current = current->next;
@@ -300,9 +312,6 @@ int adjustIngredientPrice(const char* pathFileIngredients) {
 		return 0;
 	}
 
-	// Ensure totalIngredient is a prime number for better hash distribution
-	totalIngredient = findNextPrime(totalIngredient);
-
 	while (1) {
 		clearScreen();
 		PrintIngredientsToConsole(pathFileIngredients);
@@ -310,11 +319,16 @@ int adjustIngredientPrice(const char* pathFileIngredients) {
 		// Get ingredient id from user
 		int ingredientId;
 		printf("Enter Ingredient Id: ");
-		scanf("%d", &ingredientId);
+		if (scanf("%d", &ingredientId) != 1) {
+			printf("Invalid input. Please enter a valid number.\n");
+			while (getchar() != '\n'); // Clear input buffer
+			enterToContinue();
+			continue;
+		}
 
 		// Check if ingredient id is valid
 		if (ingredientId < 0) {
-			printf("Invalid Ingredient Id");
+			printf("Invalid Ingredient Id\n");
 			enterToContinue();
 			break;
 		}
@@ -333,9 +347,14 @@ int adjustIngredientPrice(const char* pathFileIngredients) {
 		printf("| 6. Linear Quotient                   |\n");
 		printf("| 7. Brent's Method                    |\n");
 		printf("+--------------------------------------+\n");
-		printf("Enter your choice (1-7): ");
+		printf("Enter your choice (1-8): ");
 
-		scanf("%d", &algorithmChoice);
+		if (scanf("%d", &algorithmChoice) != 1) {
+			printf("Invalid input. Please enter a valid number.\n");
+			while (getchar() != '\n'); // Clear input buffer
+			enterToContinue();
+			continue;
+		}
 
 		Ingredient* ingredient = NULL;
 
@@ -370,7 +389,10 @@ int adjustIngredientPrice(const char* pathFileIngredients) {
 				buckets[bucketIndex].head = newIngredient;
 			}
 
-			ingredient = bucketSearch(buckets, totalBuckets, ingredientId);
+			float newPrice;
+			printf("Enter new price: ");
+			scanf("%f", &newPrice);
+			ingredient = bucketSearch(buckets, totalBuckets, ingredientId, newPrice);
 
 			// Update the original ingredients array if found in bucket
 			if (ingredient != NULL) {
@@ -415,13 +437,27 @@ int adjustIngredientPrice(const char* pathFileIngredients) {
 		}
 
 		float newPrice;
-		// Get new price from user
+
+		if (algorithmChoice == 5)
+		{
+			goto jump;
+		}
 		printf("Enter new price: ");
-		scanf("%f", &newPrice);
+		if (scanf("%f", &newPrice) != 1 || newPrice < 0) {
+			printf("Invalid price. Please enter a valid positive number.\n");
+			while (getchar() != '\n'); // Clear input buffer
+			enterToContinue();
+			continue;
+		}
+
+
+
 		getchar();
 
 		// Update the price of the ingredient
 		ingredient->price = newPrice;
+
+	jump:
 
 		// Save the updated ingredients to file
 		FILE* file = fopen(pathFileIngredients, "wb");
@@ -443,6 +479,7 @@ int adjustIngredientPrice(const char* pathFileIngredients) {
 	free(ingredients);
 	return 0;
 }
+
 
 /**
  * @brief Resets the prices of all ingredients.
@@ -468,11 +505,11 @@ int resetIngredientPrice(const char* pathFileIngredients) {
 	getchar();
 
 	//Find the ingredient and reset the price
-	for (int i = 0; i < totalIngredient; i++) { if (ingredients[i].id == ingredientId) { ingredients[i].price = 0.0;break; } }
+	for (int i = 0; i < totalIngredient; i++) { if (ingredients[i].id == ingredientId) { ingredients[i].price = 0.0; break; } }
 
 	// Save the updated ingredients to file
 	FILE* file = fopen(pathFileIngredients, "wb");
-	if (!file) { printf("File could not be opened");getchar();enterToContinue();return 0; }
+	if (!file) { printf("File could not be opened"); getchar(); enterToContinue(); return 0; }
 	fwrite(ingredients, sizeof(Ingredient), totalIngredient, file);
 	fclose(file);
 
@@ -504,7 +541,7 @@ int AdjustIngredientPriceMenu(const char* pathFileIngredients) {
 
 
 		choice = getInput();
-		if (choice == -2) { handleInputError();enterToContinue();continue; }
+		if (choice == -2) { handleInputError(); enterToContinue(); continue; }
 		switch (choice) {
 		case 1:
 			adjustIngredientPrice(pathFileIngredients);
