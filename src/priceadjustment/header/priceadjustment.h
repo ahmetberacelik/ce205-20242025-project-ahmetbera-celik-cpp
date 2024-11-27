@@ -10,7 +10,7 @@
 #include "../../userauthentication/header/userauthentication.h"
 #include <stdbool.h>
 
- /**
+/**
   * @brief Bucket structure to store ingredients in hash table
   * @struct Bucket
   * @var Bucket::head Pointer to the first ingredient in the bucket
@@ -19,7 +19,28 @@ typedef struct Bucket {
     Ingredient* head;
 } Bucket;
 
+/**
+ * @brief Ensures the max-heap property for a given node in the ingredient array.
+ *
+ * This function checks and adjusts the max-heap property for the specified node
+ * and its subtrees within the ingredient array. It assumes that the subtrees
+ * of the node are already max-heaps.
+ *
+ * @param ingredients Pointer to the array of Ingredient objects.
+ * @param n Total number of elements in the ingredient array.
+ * @param i Index of the node to be checked and adjusted.
+ */
 void heapify(Ingredient* ingredients, int n, int i);
+
+/**
+ * @brief Sorts an array of ingredients in descending order using the max-heap algorithm.
+ *
+ * This function builds a max-heap from the given ingredient array and performs heap sort
+ * to arrange the ingredients in descending order based on a specific criterion (e.g., price, quantity).
+ *
+ * @param ingredients Pointer to the array of Ingredient objects to be sorted.
+ * @param n Total number of elements in the ingredient array.
+ */
 void sortIngredientsMaxHeap(Ingredient* ingredients, int n);
 
 /**

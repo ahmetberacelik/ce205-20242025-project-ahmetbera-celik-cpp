@@ -8,7 +8,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
- /**
+
+/**
   * @brief Converts a doubly linked list of ingredients to an array.
   * @param pathFileIngredients Path to the ingredient file.
   * @param baseIngredients Pointer to the array of ingredients to be populated.
@@ -42,12 +43,8 @@ int ConvertDoubleLinkToArray(const char* pathFileIngredients, Ingredient** baseI
 
 	return count;
 }
+
 /**
- * @brief Prints the ingredients loaded from a file to the console.
- * @param pathFileIngredients Path to the ingredient file.
- * @return Total number of ingredients printed.
- */
- /**
   * @brief Prints the ingredients loaded from a file to the console in descending order of price.
   * @param pathFileIngredients Path to the ingredient file.
   * @return Total number of ingredients printed.
@@ -77,6 +74,7 @@ int PrintIngredientsToConsole(const char* pathFileIngredients) {
 	free(ingredientsArray);
 	return count;
 }
+
 /**
  * @brief Checks if a given number is a prime number.
  * @param number The number to check.
@@ -89,6 +87,7 @@ bool isPrime(int number) {
 	}
 	return true;
 }
+
 /**
  * @brief Finds the next prime number greater than or equal to a given number.
  * @param number The starting number.
@@ -288,20 +287,6 @@ Ingredient* bucketSearch(Bucket* buckets, int bucketSize, int ingredientId) {
 }
 
 /**
- * @brief Searches for an ingredient using a hashtable approach.
- * @param ingredients Array of ingredients.
- * @param totalIngredient Total number of ingredients in the array.
- * @param ingredientId The ID of the ingredient to search for.
- * @return Pointer to the ingredient if found, otherwise NULL.
- */
-Ingredient* hashtableSearch(Ingredient* ingredients, int totalIngredient, int ingredientId) {
-	int index = ingredientId % totalIngredient;
-	while (ingredients[index].id != -1) {
-		if (ingredients[index].id == ingredientId) { return &ingredients[index]; }index = (index + 1) % totalIngredient;
-	}return NULL;
-}
-
-/**
  * @brief Adjusts the price of an ingredient.
  * @param pathFileIngredients Path to the ingredient file.
  * @return 1 if the ingredient price was successfully updated, otherwise 0.
@@ -347,9 +332,8 @@ int adjustIngredientPrice(const char* pathFileIngredients) {
 		printf("| 5. Use of Buckets                    |\n");
 		printf("| 6. Linear Quotient                   |\n");
 		printf("| 7. Brent's Method                    |\n");
-		printf("| 8. Hashtable                         |\n");
 		printf("+--------------------------------------+\n");
-		printf("Enter your choice (1-8): ");
+		printf("Enter your choice (1-7): ");
 
 		scanf("%d", &algorithmChoice);
 
@@ -415,9 +399,6 @@ int adjustIngredientPrice(const char* pathFileIngredients) {
 			break;
 		case 7:
 			ingredient = brentMethodSearch(ingredients, totalIngredient, ingredientId);
-			break;
-		case 8:
-			ingredient = hashtableSearch(ingredients, totalIngredient, ingredientId);
 			break;
 		default:
 			printf("Invalid choice");

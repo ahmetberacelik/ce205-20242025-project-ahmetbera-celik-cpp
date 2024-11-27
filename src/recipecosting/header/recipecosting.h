@@ -10,21 +10,22 @@
 #include <stdlib.h>
 #include <string.h>
 
- /**
+/**
   * @brief Maximum number of ingredients allowed per recipe.
   */
 #define MAX_INGREDIENTS 100
-  /**
+
+/**
    * @brief Maximum length of a recipe name.
    */
 #define MAX_NAME_LENGTH 50
-   /**
+
+/**
 	* @brief Maximum number of recipes that can be managed.
 	*/
 #define MAX_RECIPES 100
 
-
-	/**
+/**
 	 * @brief Recipe struct definition.
 	 */
 typedef struct {

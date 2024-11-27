@@ -8,7 +8,7 @@
 
 #include <stdbool.h>
 
- /**
+/**
   * @brief Ingredient struct definition.
   */
 typedef struct Ingredient {
