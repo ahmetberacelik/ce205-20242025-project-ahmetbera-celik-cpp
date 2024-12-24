@@ -282,6 +282,12 @@ Ingredient* loadHuffmanEncodedIngredientsFromFile() {
  * @return The updated head of the linked list.
  */
 Ingredient* addIngredient(Ingredient* head, const char* name, float price, const char* filePath) {
+	// Validate that the ingredient name has at least 2 characters
+	if (strlen(name) < 2) {
+		printf("Error: Ingredient name must be at least 2 characters long.\n");
+		return head;
+	}
+
 	int freq[256] = { 0 };
 	countFrequencies(name, freq);
 
@@ -338,6 +344,7 @@ Ingredient* addIngredient(Ingredient* head, const char* name, float price, const
 		printf("Error: Failed to save ingredient data to files.\n");
 	}
 
+	printf("Ingredient added successfully.\n");
 	freeHuffmanTree(root);
 	return head;
 }
@@ -868,7 +875,6 @@ int ingredientManagementMenu(const char* filePath) {
 			}
 
 			head = addIngredient(head, name, price, filePath);
-			printf("Ingredient added successfully.\n");
 			enterToContinue();
 			break;
 
