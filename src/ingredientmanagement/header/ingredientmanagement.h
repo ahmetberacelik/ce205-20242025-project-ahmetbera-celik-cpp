@@ -8,9 +8,9 @@
 
 #include <stdbool.h>
 
-/**
-  * @brief Ingredient struct definition.
-  */
+ /**
+   * @brief Ingredient struct definition.
+   */
 typedef struct Ingredient {
     int id; /**< Unique ingredient ID. */
     char name[100];  /**< Ingredient name. */
@@ -44,13 +44,15 @@ int printIngredientManagementMenu();
 int printIngredientViewMenu();
 
 // Huffman coding functions
+void freeHuffmanTree(HuffmanTreeNode* root);
+bool saveHuffmanEncodedIngredientsToFile(Ingredient* head);
+Ingredient* loadHuffmanEncodedIngredientsFromFile();
 HuffmanTreeNode* createHuffmanTreeNode(char character, int frequency);
 void countFrequencies(const char* str, int freq[256]);
 HuffmanTreeNode* constructHuffmanTree(const int freq[256]);
 void generateHuffmanCodes(HuffmanTreeNode* root, char* code, int depth, char codes[256][256]);
 void encodeString(const char* str, const char codes[256][256], char* encodedStr);
 void decodeString(HuffmanTreeNode* root, const char* encodedStr, char* decodedStr);
-
 
 void computeLPSArray(const char* pattern, int* lps, int m);
 bool KMPSearch(const char* text, const char* pattern);
