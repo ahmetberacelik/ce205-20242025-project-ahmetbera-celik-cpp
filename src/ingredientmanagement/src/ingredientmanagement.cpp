@@ -12,13 +12,13 @@
 #include <stdlib.h>
 #include <limits.h>
 
-/**
-  * @brief Creates a new Huffman tree node.
-  *
-  * @param character The character to store in the node.
-  * @param frequency The frequency of the character.
-  * @return A pointer to the newly created HuffmanTreeNode.
-  */
+ /**
+   * @brief Creates a new Huffman tree node.
+   *
+   * @param character The character to store in the node.
+   * @param frequency The frequency of the character.
+   * @return A pointer to the newly created HuffmanTreeNode.
+   */
 HuffmanTreeNode* createHuffmanTreeNode(char character, int frequency) {
 	HuffmanTreeNode* node = (HuffmanTreeNode*)malloc(sizeof(HuffmanTreeNode));
 	node->character = character;
@@ -90,9 +90,16 @@ HuffmanTreeNode* constructHuffmanTree(const int freq[256]) {
  * @param codes An array to store the generated codes for each character.
  */
 void generateHuffmanCodes(HuffmanTreeNode* root, char* code, int depth, char codes[256][256]) {
+	if (root == NULL) {
+		printf("Error: Null root encountered in generateHuffmanCodes.\n");
+		return;
+	}
+
 	if (root->left == NULL && root->right == NULL) {
 		code[depth] = '\0';
-		strcpy(codes[(unsigned char)root->character], code);
+		if ((unsigned char)root->character < 256) {
+			strcpy(codes[(unsigned char)root->character], code);
+		}
 		return;
 	}
 
@@ -148,31 +155,159 @@ void decodeString(HuffmanTreeNode* root, const char* encodedStr, char* decodedSt
 }
 
 /**
- * @brief Adds a new ingredient to the linked list.
+ * @brief Frees the memory allocated for a Huffman tree.
  *
- * @param head The head of the linked list.
+ * @param root The root of the Huffman tree to be freed.
+ */
+void freeHuffmanTree(HuffmanTreeNode* root) {
+	if (root == NULL) return;
+	freeHuffmanTree(root->left);
+	freeHuffmanTree(root->right);
+	free(root);
+}
+
+/**
+ * @brief Saves all ingredients to a Huffman-encoded .huf binary file.
+ *
+ * @param head The head of the linked list of ingredients.
+ * @return True if the ingredients were saved successfully, otherwise false.
+ */
+bool saveHuffmanEncodedIngredientsToFile(Ingredient* head) {
+	const char* filePath = "ingredients.huf";
+	FILE* file = fopen(filePath, "wb");
+	if (file == NULL) {
+		printf("Error: Could not open file %s for writing.\n", filePath);
+		return false;
+	}
+
+	Ingredient* temp = head;
+	while (temp != NULL) {
+		int freq[256] = { 0 };
+		countFrequencies(temp->name, freq);
+		HuffmanTreeNode* root = constructHuffmanTree(freq);
+
+		if (!root) {
+			printf("Error: Huffman tree construction failed for ingredient: %s\n", temp->name);
+			fclose(file);
+			return false;
+		}
+
+		char codes[256][256] = { {0} };
+		char code[256];
+		generateHuffmanCodes(root, code, 0, codes);
+
+		char encodedName[1024] = { 0 };
+		encodeString(temp->name, codes, encodedName);
+
+		// Write the encoded ingredient to the .huf file
+		fwrite(&temp->id, sizeof(temp->id), 1, file);
+		size_t encodedLength = strlen(encodedName);
+		fwrite(&encodedLength, sizeof(size_t), 1, file);
+		fwrite(encodedName, sizeof(char), encodedLength, file);
+		fwrite(&temp->price, sizeof(temp->price), 1, file);
+
+		freeHuffmanTree(root);
+		temp = temp->next;
+	}
+
+	fclose(file);
+	return true;
+}
+
+/**
+ * @brief Loads ingredients from a Huffman-encoded .huf binary file.
+ *
+ * @return A pointer to the head of the linked list of ingredients.
+ */
+Ingredient* loadHuffmanEncodedIngredientsFromFile() {
+	const char* filePath = "ingredients.huf";
+	FILE* file = fopen(filePath, "rb");
+	if (file == NULL) {
+		printf("Error: Could not open file %s for reading.\n", filePath);
+		return NULL;
+	}
+
+	Ingredient* head = NULL;
+	Ingredient* tail = NULL;
+
+	while (1) {
+		int id;
+		size_t encodedLength;
+		char encodedName[1024] = { 0 };
+		float price;
+
+		if (fread(&id, sizeof(id), 1, file) != 1) break;
+		if (fread(&encodedLength, sizeof(size_t), 1, file) != 1) break;
+		if (fread(encodedName, sizeof(char), encodedLength, file) != encodedLength) break;
+		if (fread(&price, sizeof(price), 1, file) != 1) break;
+
+		encodedName[encodedLength] = '\0';
+
+		// Decode the Huffman-encoded name
+		int freq[256] = { 0 };
+		countFrequencies(encodedName, freq);
+		HuffmanTreeNode* root = constructHuffmanTree(freq);
+
+		char decodedName[100] = { 0 };
+		decodeString(root, encodedName, decodedName);
+
+		// Create a new ingredient
+		Ingredient* newIngredient = (Ingredient*)malloc(sizeof(Ingredient));
+		newIngredient->id = id;
+		strcpy(newIngredient->name, decodedName);
+		newIngredient->price = price;
+		newIngredient->prev = tail;
+		newIngredient->next = NULL;
+
+		if (head == NULL) {
+			head = newIngredient;
+		}
+		else {
+			tail->next = newIngredient;
+		}
+		tail = newIngredient;
+	}
+
+	fclose(file);
+	return head;
+}
+
+/**
+ * @brief Adds a new ingredient to the linked list and updates both the binary and Huffman-encoded .huf file.
+ *
+ * @param head The head of the linked list of ingredients.
  * @param name The name of the ingredient.
  * @param price The price of the ingredient.
- * @param filePath The file path to save the ingredients.
+ * @param filePath The binary file path for saving ingredients.
  * @return The updated head of the linked list.
  */
 Ingredient* addIngredient(Ingredient* head, const char* name, float price, const char* filePath) {
-	int freq[256];
+	int freq[256] = { 0 };
 	countFrequencies(name, freq);
 
 	HuffmanTreeNode* root = constructHuffmanTree(freq);
+	if (root == NULL) {
+		printf("Error: Huffman tree construction failed for new ingredient: %s\n", name);
+		return head;
+	}
 
-	char codes[256][256];
-	char code[256];
+	char codes[256][256] = { {0} };
+	char code[256] = { 0 };
 	generateHuffmanCodes(root, code, 0, codes);
 
-	char encodedName[1024];
+	char encodedName[1024] = { 0 };
 	encodeString(name, codes, encodedName);
 
-	char decodedName[100];
+	char decodedName[100] = { 0 };
 	decodeString(root, encodedName, decodedName);
 
 	Ingredient* newIngredient = (Ingredient*)malloc(sizeof(Ingredient));
+	if (newIngredient == NULL) {
+		printf("Error: Memory allocation failed for new ingredient.\n");
+		freeHuffmanTree(root);
+		return head;
+	}
+
 	int newId = 1;
 	if (head != NULL) {
 		Ingredient* temp = head;
@@ -199,7 +334,137 @@ Ingredient* addIngredient(Ingredient* head, const char* name, float price, const
 		newIngredient->prev = temp;
 	}
 
+	if (!saveIngredientsToFile(head, filePath) || !saveHuffmanEncodedIngredientsToFile(head)) {
+		printf("Error: Failed to save ingredient data to files.\n");
+	}
+
+	freeHuffmanTree(root);
+	return head;
+}
+
+/**
+ * @brief Removes an ingredient by ID and updates the Huffman-encoded .huf binary file.
+ *
+ * @param head The head of the linked list of ingredients.
+ * @param id The ID of the ingredient to remove.
+ * @param filePath The binary file path for saving ingredients.
+ * @return The updated head of the linked list.
+ */
+Ingredient* removeIngredient(Ingredient* head, int id, const char* filePath) {
+	if (head == NULL) {
+		printf("No ingredients to remove.\n");
+		enterToContinue();
+		return head;
+	}
+
+	Ingredient* current = head;
+
+	// Find the ingredient with the specified ID
+	while (current != NULL && current->id != id) {
+		current = current->next;
+	}
+
+	if (current == NULL) {
+		printf("Ingredient with ID %d not found.\n", id);
+		enterToContinue();
+		return head;
+	}
+
+	// Remove the ingredient from the list
+	if (current->prev != NULL) {
+		current->prev->next = current->next;
+	}
+	else {
+		head = current->next;
+	}
+
+	if (current->next != NULL) {
+		current->next->prev = current->prev;
+	}
+
+	free(current);
+
+	if (!saveIngredientsToFile(head, filePath) || !saveHuffmanEncodedIngredientsToFile(head)) {
+		printf("Error: Failed to update files after removal.\n");
+	}
+
+	printf("Ingredient with ID %d removed successfully.\n", id);
+	enterToContinue();
+	return head;
+}
+
+/**
+ * @brief Edits an ingredient's name by ID and updates both the binary and Huffman-encoded .huf file.
+ *
+ * @param head The head of the linked list of ingredients.
+ * @param filePath The binary file path for saving ingredients.
+ * @return The updated head of the linked list.
+ */
+Ingredient* editIngredient(Ingredient* head, const char* filePath) {
+	if (head == NULL) {
+		printf("No ingredients available to edit.\n");
+		enterToContinue();
+		return head;
+	}
+
+	// Display the list of ingredients
+	listIngredients(head);
+
+	// Prompt for the ID of the ingredient to edit
+	int id;
+	printf("Enter the ID of the ingredient to edit: ");
+	id = getInput();
+	if (id == -2) {
+		handleInputError();
+		enterToContinue();
+		return head;
+	}
+
+	// Find the ingredient with the specified ID
+	Ingredient* current = head;
+	while (current != NULL && current->id != id) {
+		current = current->next;
+	}
+
+	if (current == NULL) {
+		printf("Ingredient with ID %d not found.\n", id);
+		enterToContinue();
+		return head;
+	}
+
+	// Get the new name for the ingredient and validate it
+	char newName[100];
+	while (true) {
+		printf("Enter the new name for the ingredient: ");
+		fgets(newName, sizeof(newName), stdin);
+		newName[strcspn(newName, "\n")] = 0;
+
+		int validName = 1;
+		for (int i = 0; i < strlen(newName); i++) {
+			if (isdigit(newName[i])) {
+				validName = 0;
+				break;
+			}
+		}
+
+		if (validName && strlen(newName) > 0) {
+			break;
+		}
+		else {
+			printf("Invalid ingredient name. Please enter a valid name without numbers.\n");
+			enterToContinue();
+		}
+	}
+
+	// Update the ingredient's name
+	strcpy(current->name, newName);
+
+	// Save updated ingredient list to file
 	saveIngredientsToFile(head, filePath);
+	saveHuffmanEncodedIngredientsToFile(head);
+	printf("Ingredient name updated successfully.\n");
+	enterToContinue();
+
 	return head;
 }
 
@@ -352,127 +617,6 @@ Ingredient* loadIngredientsFromFile(const char* filePath) {
 	}
 
 	fclose(file);
-	return head;
-}
-
-/**
- * @brief Removes an ingredient by ID from the linked list.
- *
- * @param head The head of the linked list of ingredients.
- * @param id The ID of the ingredient to remove.
- * @param filePath The file path to save the updated list of ingredients.
- * @return The updated head of the linked list.
- */
-Ingredient* removeIngredient(Ingredient* head, int id, const char* filePath) {
-	if (head == NULL) {
-		printf("No ingredients to remove.\n");
-		enterToContinue();
-		return head;
-	}
-
-	Ingredient* current = head;
-
-	// Find the ingredient with the specified ID
-	while (current != NULL && current->id != id) {
-		current = current->next;
-	}
-
-	if (current == NULL) {
-		printf("Ingredient with ID %d not found.\n", id);
-		enterToContinue();
-		return head;
-	}
-
-	// Remove the ingredient from the list
-	if (current->prev != NULL) {
-		current->prev->next = current->next;
-	}
-	else {
-		head = current->next;
-	}
-
-	if (current->next != NULL) {
-		current->next->prev = current->prev;
-	}
-
-	free(current);
-	saveIngredientsToFile(head, filePath);
-	printf("Ingredient with ID %d removed successfully.\n", id);
-	enterToContinue();
-	return head;
-}
-
-/**
- * @brief Edits an ingredient's name by ID.
- *
- * @param head The head of the linked list of ingredients.
- * @param filePath The file path to save the updated list of ingredients.
- * @return The updated head of the linked list.
- */
-Ingredient* editIngredient(Ingredient* head, const char* filePath) {
-	if (head == NULL) {
-		printf("No ingredients available to edit.\n");
-		enterToContinue();
-		return head;
-	}
-
-	// Display the list of ingredients
-	listIngredients(head);
-
-	// Prompt for the ID of the ingredient to edit
-	int id;
-	printf("Enter the ID of the ingredient to edit: ");
-	id = getInput();
-	if (id == -2) {
-		handleInputError();
-		enterToContinue();
-		return head;
-	}
-
-	// Find the ingredient with the specified ID
-	Ingredient* current = head;
-	while (current != NULL && current->id != id) {
-		current = current->next;
-	}
-
-	if (current == NULL) {
-		printf("Ingredient with ID %d not found.\n", id);
-		enterToContinue();
-		return head;
-	}
-
-	// Get the new name for the ingredient and validate it
-	char newName[100];
-	while (true) {
-		printf("Enter the new name for the ingredient: ");
-		fgets(newName, sizeof(newName), stdin);
-		newName[strcspn(newName, "\n")] = 0;
-
-		int validName = 1;
-		for (int i = 0; i < strlen(newName); i++) {
-			if (isdigit(newName[i])) {
-				validName = 0;
-				break;
-			}
-		}
-
-		if (validName && strlen(newName) > 0) {
-			break;
-		}
-		else {
-			printf("Invalid ingredient name. Please enter a valid name without numbers.\n");
-			enterToContinue();
-		}
-	}
-
-	// Update the ingredient's name
-	strcpy(current->name, newName);
-
-	// Save updated ingredient list to file
-	saveIngredientsToFile(head, filePath);
-	printf("Ingredient name updated successfully.\n");
-	enterToContinue();
-
 	return head;
 }
 
