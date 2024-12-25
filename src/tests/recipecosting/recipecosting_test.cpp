@@ -24,6 +24,8 @@ protected:
 	void TearDown() override {
 		remove(inputTest);
 		remove(outputTest);
+		remove(testPathFileIngredients);
+		remove(testPathFileRecipes);
 	}
 
 	void simulateUserInput(const char* userInput) {
