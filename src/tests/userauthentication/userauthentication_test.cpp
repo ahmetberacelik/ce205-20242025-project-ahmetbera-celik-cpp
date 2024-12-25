@@ -270,6 +270,16 @@ TEST_F(UserauthenticationTest, guestOperationsShouldEnterEveryCase) {
 	EXPECT_EQ(result, 0);
 }
 
+TEST_F(UserauthenticationTest, mainMenuViewUserTest) {
+	simulateUserInput("2\na\na\na\na\n\n2\nb\nb\nb\nb\n\n2\nc\nc\nc\nc\n\n5\n1\n1\n1\n2\n2\n2\n3\n4\n");
+
+	int result = mainMenu(pathFileUsers, pathFileIngredients, pathFileRecieps);
+
+	resetStdinStdout();
+
+	EXPECT_EQ(result, 0);
+}
+
 /**
  * @brief The main function of the test program.
  *

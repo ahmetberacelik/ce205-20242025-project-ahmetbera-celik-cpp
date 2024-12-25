@@ -277,7 +277,6 @@ Ingredient* brentMethodSearch(Ingredient* ingredients, int totalIngredient, int 
 	return (ingredients[bestIndex].id == ingredientId) ? &ingredients[bestIndex] : NULL;
 }
 
-
 /**
  * @brief Searches for an ingredient within a bucket.
  * @param buckets Array of buckets.
