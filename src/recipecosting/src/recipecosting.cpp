@@ -12,9 +12,198 @@
 #include <queue>
 #include <stack>
 #include <string>
+#include <limits.h>
 #include <unordered_map>
 
- /**
+/**
+  * @brief Initializes the graph with the given number of nodes.
+  *
+  * This function initializes the adjacency list, visited nodes, discovery times,
+  * low links, and stack-related attributes of the graph.
+  *
+  * @param graph Pointer to the Graph structure to be initialized.
+  * @param nodeCount The total number of nodes in the graph.
+  */
+void initializeGraph(Graph* graph, int nodeCount) {
+	for (int i = 0; i < nodeCount; i++) {
+		graph->adjList[i] = NULL;
+		graph->visited[i] = 0;
+		graph->discoveryTime[i] = -1;
+		graph->lowLink[i] = -1;
+		graph->inStack[i] = 0;
+	}
+	graph->time = 0;
+	graph->stackTop = -1;
+}
+
+/**
+ * @brief Adds a directed edge from the source node to the destination node.
+ *
+ * This function creates a new edge from the source node to the destination node,
+ * linking the recipes in the graph structure.
+ *
+ * @param graph Pointer to the Graph structure.
+ * @param src The source node index.
+ * @param dest The destination node index.
+ */
+void addEdge(Graph* graph, int src, int dest) {
+	Node* newNode = (Node*)malloc(sizeof(Node));
+	newNode->recipeIndex = dest;
+	newNode->next = graph->adjList[src];
+	graph->adjList[src] = newNode;
+}
+
+/**
+ * @brief Pushes a node onto the stack.
+ *
+ * This function adds the given node to the stack and marks it as in-stack.
+ *
+ * @param graph Pointer to the Graph structure.
+ * @param node The node to be pushed onto the stack.
+ */
+void push(Graph* graph, int node) {
+	graph->stack[++graph->stackTop] = node;
+	graph->inStack[node] = 1;
+}
+
+/**
+ * @brief Pops a node from the stack.
+ *
+ * This function removes the top node from the stack and returns it.
+ * It also marks the node as no longer in the stack.
+ *
+ * @param graph Pointer to the Graph structure.
+ * @return The node that was popped from the stack.
+ */
+int pop(Graph* graph) {
+	int node = graph->stack[graph->stackTop--];
+	graph->inStack[node] = 0;
+	return node;
+}
+
+/**
+ * @brief Performs a detailed Tarjan's Strongly Connected Components (SCC) analysis.
+ *
+ * This function uses Tarjan's algorithm to find SCCs in a graph and prints the
+ * recipes in each SCC. It recursively explores the graph to determine the
+ * discovery times and low links of nodes.
+ *
+ * @param graph Pointer to the Graph structure.
+ * @param node The starting node for the analysis.
+ * @param recipes Array of Recipe structures containing recipe data.
+ */
+void tarjanSCCDetailed(Graph* graph, int node, Recipe recipes[]) {
+	graph->discoveryTime[node] = graph->lowLink[node] = graph->time++;
+	push(graph, node);
+
+	Node* current = graph->adjList[node];
+	while (current != NULL) {
+		int neighbor = current->recipeIndex;
+		if (graph->discoveryTime[neighbor] == -1) {
+			tarjanSCCDetailed(graph, neighbor, recipes);
+			graph->lowLink[node] = (graph->lowLink[node] < graph->lowLink[neighbor]) ? graph->lowLink[node] : graph->lowLink[neighbor];
+		}
+		else if (graph->inStack[neighbor]) {
+			graph->lowLink[node] = (graph->lowLink[node] < graph->discoveryTime[neighbor]) ? graph->lowLink[node] : graph->discoveryTime[neighbor];
+		}
+		current = current->next;
+	}
+
+	// If node is the root of an SCC
+	if (graph->lowLink[node] == graph->discoveryTime[node]) {
+		printf("Recipes in this SCC:\n");
+		int sccNode;
+		do {
+			sccNode = pop(graph);
+			printf("- Recipe %d: %s (Category: %d, Ingredients: ",
+				sccNode + 1, // Recipe ID (1-based indexing)
+				recipes[sccNode].name,
+				recipes[sccNode].category);
+			for (int i = 0; i < recipes[sccNode].ingredientCount; i++) {
+				printf("%d ", recipes[sccNode].ingredients[i]); // Ingredient IDs
+			}
+			printf(")\n");
+		} while (sccNode != node);
+		printf("\n");
+	}
+}
+
+/**
+ * @brief Builds a graph from the provided recipes.
+ *
+ * This function constructs a graph where nodes represent recipes, and edges are
+ * added between nodes that share ingredients or belong to the same category.
+ *
+ * @param graph Pointer to the Graph structure to be built.
+ * @param recipes Array of Recipe structures containing recipe data.
+ * @param recipeCount The number of recipes in the array.
+ */
+void buildGraphFromRecipes(Graph* graph, Recipe recipes[], int recipeCount) {
+	for (int i = 0; i < recipeCount; i++) {
+		for (int j = 0; j < recipeCount; j++) {
+			if (i != j) {
+				// Check if recipes i and j share ingredients or belong to the same category
+				if (recipes[i].category == recipes[j].category) {
+					addEdge(graph, i, j); // Add edge for same category
+				}
+				else {
+					for (int k = 0; k < recipes[i].ingredientCount; k++) {
+						for (int l = 0; l < recipes[j].ingredientCount; l++) {
+							if (recipes[i].ingredients[k] == recipes[j].ingredients[l]) {
+								addEdge(graph, i, j); // Add edge for shared ingredient
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+/**
+ * @brief Analyzes the Strongly Connected Components (SCCs) of recipes in a graph.
+ *
+ * This function loads recipes from a file, builds a graph, and then applies
+ * Tarjan's SCC algorithm to identify and print SCCs of recipes that are
+ * interconnected through shared ingredients or belong to the same category.
+ *
+ * @param pathFileRecipes Path to the file containing recipe data.
+ */
+void analyzeSCC(const char* pathFileRecipes) {
+	Recipe recipes[MAX_RECIPES];
+	int recipeCount = loadRecipesFromFile(pathFileRecipes, recipes, MAX_RECIPES);
+
+	if (recipeCount == 0) {
+		printf("No recipes available for analysis.\n");
+		enterToContinue();
+		return;
+	}
+
+	// Initialize the graph
+	Graph graph;
+	initializeGraph(&graph, recipeCount);
+
+	// Build the graph from recipes
+	buildGraphFromRecipes(&graph, recipes, recipeCount);
+
+	// Run Tarjan's SCC algorithm
+	printf("+--------------------------------------+\n");
+	printf("|   STRONGLY CONNECTED COMPONENTS      |\n");
+	printf("+--------------------------------------+\n");
+
+	int sccCounter = 0; // Counter for SCC groups
+	for (int i = 0; i < recipeCount; i++) {
+		if (graph.discoveryTime[i] == -1) {
+			printf("\nSCC Group %d:\n", ++sccCounter);
+			tarjanSCCDetailed(&graph, i, recipes); // Call detailed SCC function
+		}
+	}
+
+	enterToContinue();
+}
+
+/**
   * @brief Creates a new B+ tree node.
   *
   * @param isLeaf Flag indicating whether the new node is a leaf.
@@ -360,12 +549,37 @@ int calculateRecipeCost(const char* pathFileRecipes, const char* pathFileIngredi
 }
 
 /**
- * @brief Prints all recipes to the console.
+ * @brief Lists the names of all recipes.
  *
  * @param pathFileRecipes File path to load the recipes from.
  */
+int listRecipesName(const char* pathFileRecipes) {
+	Recipe recipes[MAX_RECIPES];
+	int recipeCount = loadRecipesFromFile(pathFileRecipes, recipes, MAX_RECIPES);
+
+	if (recipeCount == 0) {
+		printf("No recipes found.\n");
+		return -1; // Indicate no recipes found
+	}
+
+	printf("+--------------------+\n");
+	printf("| Available Recipes  |\n");
+	printf("+--------------------+\n");
+	for (int i = 0; i < recipeCount; i++) {
+		printf("%d) %s\n", i + 1, recipes[i].name); // 1-based index for user
+	}
+	printf("+--------------------+\n");
+
+	return recipeCount; // Return the number of recipes listed
+}
+
+ /**
+  * @brief Prints all recipes to the console.
+  *
+  * @param pathFileRecipes File path to load the recipes from.
+  */
 int printRecipesToConsole(const char* pathFileRecipes) {
-	FILE* file = fopen(pathFileRecipes, "r");
+	FILE* file = fopen(pathFileRecipes, "rb");
 	if (!file) {
 		printf("Error opening recipe file.\n");
 		return -1; // Indicate error opening file
@@ -373,46 +587,68 @@ int printRecipesToConsole(const char* pathFileRecipes) {
 
 	Ingredient* ingredientList = loadIngredientsFromFile("ingredient.bin");
 	if (!ingredientList) {
-		printf("Error loading ingredients.\n"); fclose(file); return -2; // Indicate error loading ingredients
+		printf("Error loading ingredients.\n");
+		fclose(file);
+		return -2; // Indicate error loading ingredients
 	}
 
-	printf("\nAvailable Recipes:\n");
-	char line[MAX_NAME_LENGTH];
-	int id = 1;
-	while (fgets(line, sizeof(line), file)) {
-		// Displaying the recipe name
-		printf("%d) %s", id++, line);
+	int recipeCount;
+	fread(&recipeCount, sizeof(int), 1, file); // Read the number of recipes
 
-		// Displaying the recipe category
-		fgets(line, sizeof(line), file);
-		int category = atoi(line);
-		switch (category) {
+	printf("\nAvailable Recipes:\n");
+	for (int i = 0; i < recipeCount; i++) {
+		Recipe recipe;
+
+		// Read the recipe name
+		fread(recipe.name, sizeof(char), MAX_NAME_LENGTH, file);
+
+		// Read the category
+		fread(&recipe.category, sizeof(int), 1, file);
+
+		// Read the ingredient count
+		fread(&recipe.ingredientCount, sizeof(int), 1, file);
+
+		// Read the ingredient IDs
+		fread(recipe.ingredients, sizeof(int), recipe.ingredientCount, file);
+
+		// Display the recipe name
+		printf("%d) %s\n", i + 1, recipe.name);
+
+		// Display the recipe category
+		printf("   Category: ");
+		switch (recipe.category) {
 		case 1:
-			printf("   Category: Soup\n");
+			printf("Soup\n");
 			break;
 		case 2:
-			printf("   Category: Appetizer\n");
+			printf("Appetizer\n");
 			break;
-		case 3:printf("   Category: Main Course\n"); break;
-		case 4:printf("   Category: Dessert\n"); break;
-		default:printf("   Category: Unknown\n"); break;
+		case 3:
+			printf("Main Course\n");
+			break;
+		case 4:
+			printf("Dessert\n");
+			break;
+		default:
+			printf("Unknown\n");
+			break;
 		}
 
-		// Displaying the ingredients
-		fgets(line, sizeof(line), file);
+		// Display the ingredients
 		printf("   Ingredients: ");
-		char* token = strtok(line, " ");
-		while (token != NULL) {
-			int ingredientId = atoi(token);
+		for (int j = 0; j < recipe.ingredientCount; j++) {
+			int ingredientId = recipe.ingredients[j];
 			Ingredient* current = ingredientList;
 			while (current != NULL) {
 				if (current->id == ingredientId) {
-					printf("%s, ", current->name);
+					printf("%s", current->name);
+					if (j < recipe.ingredientCount - 1) {
+						printf(", ");
+					}
 					break;
 				}
 				current = current->next;
 			}
-			token = strtok(NULL, " ");
 		}
 		printf("\n");
 	}
@@ -425,35 +661,12 @@ int printRecipesToConsole(const char* pathFileRecipes) {
 		ingredientList = ingredientList->next;
 		free(temp);
 	}
+
 	return 0; // Indicate success
 }
 
 /**
- * @brief Lists the names of all recipes.
- *
- * @param pathFileRecipes File path to load the recipes from.
- */
-int listRecipesName(const char* pathFileRecipes) {
-	FILE* file = fopen(pathFileRecipes, "r");
-	if (!file) {
-		printf("Error opening recipe file.\n");
-		return -1; // Indicate error opening file
-	}
-
-	char line[MAX_NAME_LENGTH];
-	int id = 1;
-	while (fgets(line, sizeof(line), file)) {
-		printf("%d) %s", id++, line); // Displaying only the recipe name
-		fgets(line, sizeof(line), file); // Skip category line
-		fgets(line, sizeof(line), file); // Skip ingredients line
-	}
-
-	fclose(file);
-	return 0; // Indicate success
-}
-
-/**
- * @brief Loads recipes from a file.
+ * @brief Loads recipes from a binary file.
  *
  * @param pathFileRecipes File path to load the recipes from.
  * @param recipes Array to store the loaded recipes.
@@ -461,29 +674,32 @@ int listRecipesName(const char* pathFileRecipes) {
  * @return The number of recipes loaded.
  */
 int loadRecipesFromFile(const char* pathFileRecipes, Recipe recipes[], int maxRecipes) {
-	FILE* file = fopen(pathFileRecipes, "r");
+	FILE* file = fopen(pathFileRecipes, "rb");
 	if (!file) {
-		printf("Error opening recipe file.\n");
-		return 0;
+		printf("Error: Could not open file %s.\n", pathFileRecipes);
+		return 0; // Indicate failure to open file
 	}
 
 	int recipeCount = 0;
-	while (recipeCount < maxRecipes && fgets(recipes[recipeCount].name, MAX_NAME_LENGTH, file)) {
-		recipes[recipeCount].name[strcspn(recipes[recipeCount].name, "\n")] = '\0'; // Remove newline
+	fread(&recipeCount, sizeof(int), 1, file); // Read the total number of recipes
 
-		fscanf(file, "%d\n", &recipes[recipeCount].category);
+	if (recipeCount > maxRecipes) {
+		printf("Warning: File contains more recipes than allowed (%d > %d). Truncating.\n", recipeCount, maxRecipes);
+		recipeCount = maxRecipes; // Prevent overflow
+	}
 
-		char ingredientsLine[256];
-		fgets(ingredientsLine, sizeof(ingredientsLine), file);
+	for (int i = 0; i < recipeCount; i++) {
+		// Read the recipe name
+		fread(recipes[i].name, sizeof(char), MAX_NAME_LENGTH, file);
 
-		recipes[recipeCount].ingredientCount = 0;
-		char* token = strtok(ingredientsLine, " ");
-		while (token != NULL && recipes[recipeCount].ingredientCount < MAX_INGREDIENTS) {
-			recipes[recipeCount].ingredients[recipes[recipeCount].ingredientCount++] = atoi(token);
-			token = strtok(NULL, " ");
-		}
+		// Read the category
+		fread(&recipes[i].category, sizeof(int), 1, file);
 
-		recipeCount++;
+		// Read the ingredient count
+		fread(&recipes[i].ingredientCount, sizeof(int), 1, file);
+
+		// Read the ingredient IDs
+		fread(recipes[i].ingredients, sizeof(int), recipes[i].ingredientCount, file);
 	}
 
 	fclose(file);
@@ -491,25 +707,35 @@ int loadRecipesFromFile(const char* pathFileRecipes, Recipe recipes[], int maxRe
 }
 
 /**
- * @brief Saves all recipes to a file.
+ * @brief Saves all recipes to a binary file.
  *
  * @param pathFileRecipes File path to save the recipes.
  * @param recipes Array of recipes to be saved.
  * @param recipeCount Number of recipes to save.
  */
 void saveRecipesToFile(const char* pathFileRecipes, Recipe recipes[], int recipeCount) {
-	FILE* file = fopen(pathFileRecipes, "w");
+	FILE* file = fopen(pathFileRecipes, "wb");
 	if (!file) {
-		printf("Error opening recipe file for writing.\n"); return;
+		printf("Error opening recipe file for writing.\n");
+		return;
 	}
 
+	// Write the total number of recipes first
+	fwrite(&recipeCount, sizeof(recipeCount), 1, file);
+
+	// Write each recipe
 	for (int i = 0; i < recipeCount; i++) {
-		fprintf(file, "%s\n", recipes[i].name);
-		fprintf(file, "%d\n", recipes[i].category);
-		for (int j = 0; j < recipes[i].ingredientCount; j++) {
-			fprintf(file, "%d ", recipes[i].ingredients[j]);
-		}
-		fprintf(file, "\n");
+		// Write the recipe name
+		fwrite(recipes[i].name, sizeof(char), MAX_NAME_LENGTH, file);
+
+		// Write the category
+		fwrite(&recipes[i].category, sizeof(int), 1, file);
+
+		// Write the ingredient count
+		fwrite(&recipes[i].ingredientCount, sizeof(int), 1, file);
+
+		// Write the ingredient IDs
+		fwrite(recipes[i].ingredients, sizeof(int), recipes[i].ingredientCount, file);
 	}
 
 	fclose(file);
@@ -846,14 +1072,16 @@ int recipeCostingMenu(const char* pathFileIngredients, const char* pathFileRecip
 		printf("| 3. Calculate Recipe Cost             |\n");
 		printf("| 4. Search Recipe by Category         |\n");
 		printf("| 5. Analyze Ingredient Usage          |\n");
-		printf("| 6. Exit                              |\n");
+		printf("| 6. Analyze SCC in Recipe Graph       |\n"); 
+		printf("| 7. Exit                              |\n");
 		printf("+--------------------------------------+\n");
 		printf("Enter your choice: ");
 
-
 		choice = getInput();
 		if (choice == -2) {
-			handleInputError(); enterToContinue(); continue;
+			handleInputError();
+			enterToContinue();
+			continue;
 		}
 
 		switch (choice) {
@@ -894,6 +1122,9 @@ int recipeCostingMenu(const char* pathFileIngredients, const char* pathFileRecip
 			analyzeIngredientUsage(pathFileRecipes, pathFileIngredients);
 			break;
 		case 6:
+			analyzeSCC(pathFileRecipes); // Call the new SCC function
+			break;
+		case 7:
 			return 1;
 		default:
 			clearScreen();
@@ -903,4 +1134,3 @@ int recipeCostingMenu(const char* pathFileIngredients, const char* pathFileRecip
 		}
 	}
 }
-

@@ -113,16 +113,7 @@ Ingredient* brentMethodSearch(Ingredient* ingredients, int totalIngredient, int 
  * @param ingredientId The ID of the ingredient to search for.
  * @return Pointer to the ingredient if found, otherwise NULL.
  */
-Ingredient* bucketSearch(Bucket* buckets, int bucketSize, int ingredientId);
-
-/**
- * @brief Searches for an ingredient using a hashtable approach.
- * @param ingredients Array of ingredients.
- * @param totalIngredient Total number of ingredients in the array.
- * @param ingredientId The ID of the ingredient to search for.
- * @return Pointer to the ingredient if found, otherwise NULL.
- */
-Ingredient* hashtableSearch(Ingredient* ingredients, int totalIngredient, int ingredientId);
+Ingredient* bucketSearch(Bucket* buckets, int bucketSize, int ingredientId, float newPrice);
 
 /**
  * @brief Adjusts the price of an ingredient.

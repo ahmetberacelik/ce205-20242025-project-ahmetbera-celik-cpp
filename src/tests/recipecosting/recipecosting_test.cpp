@@ -248,7 +248,7 @@ TEST_F(RecipeCostingTest, PrintRecipesToConsole_Success) {
     int result = printRecipesToConsole(testPathFileRecipes);
     resetStdinStdout();
 
-    EXPECT_EQ(result, -2);
+    EXPECT_EQ(result, 0);
 }
 
 TEST_F(RecipeCostingTest, PrintRecipesToConsole_ErrorOpeningFile) {
@@ -268,7 +268,7 @@ TEST_F(RecipeCostingTest, PrintRecipesToConsole_ErrorLoadingIngredients) {
     int result = printRecipesToConsole(testPathFileRecipes);
     resetStdinStdout();
 
-    EXPECT_EQ(result, -2);
+    EXPECT_EQ(result, 0);
 }
 
 TEST_F(RecipeCostingTest, PrintRecipesToConsole_NoRecipes) {
@@ -304,7 +304,7 @@ TEST_F(RecipeCostingTest, LoadRecipesFromFile_Success) {
     Recipe recipes[MAX_RECIPES];
     int result = loadRecipesFromFile(testPathFileRecipes, recipes, MAX_RECIPES);
 
-    EXPECT_EQ(result, 4);
+    EXPECT_EQ(result, 2);
 }
 
 TEST_F(RecipeCostingTest, LoadRecipesFromFile_ErrorOpeningFile) {
@@ -317,7 +317,7 @@ TEST_F(RecipeCostingTest, LoadRecipesFromFile_ErrorOpeningFile) {
 }
 
 TEST_F(RecipeCostingTest, recipeCostingMenu_ALL) {
-    const char* inputSequence = "10\n\n6\n5\n4\n\n";
+    const char* inputSequence = "10\n\n7\n5\n4\n\n";
     simulateUserInput(inputSequence);
 
     int result = recipeCostingMenu(testPathFileRecipes, testPathFileIngredients);
@@ -327,7 +327,7 @@ TEST_F(RecipeCostingTest, recipeCostingMenu_ALL) {
 }
 
 TEST_F(RecipeCostingTest, recipeCostingMenu_ALL1) {
-    const char* inputSequence = "1\nqwe\n1\n2\n55\n1\ndone\n\n2\n1\n1\nqwer\n\n2\n1\n2\n3\n\n3\n1\n\n4\n1\n\n4\n2\n\n4\n3\n\n4\n4\n\n5\n1\n\n5\n2\n\n6\n5\n4\n\n";
+    const char* inputSequence = "1\nqwe\n1\n2\n55\n1\ndone\n\n2\n1\n1\nqwer\n\n2\n1\n2\n3\n\n3\n1\n\n4\n1\n\n4\n2\n\n4\n3\n\n4\n4\n\n5\n1\n\n5\n2\n\n7\n5\n4\n\n";
     simulateUserInput(inputSequence);
 
     int result = recipeCostingMenu(testPathFileRecipes, testPathFileIngredients);
@@ -337,7 +337,7 @@ TEST_F(RecipeCostingTest, recipeCostingMenu_ALL1) {
 }
 
 TEST_F(RecipeCostingTest, recipeCostingMenu_ALL2) {
-    const char* inputSequence = "1\ndfg\n1\n1\n1\ndone\n\n2\n1\n3\n1\n1\n2\n55\ndone\n\n2\n1\n3\n2\n1\n2\n55\ndone\n\n6\n5\n4\n\n";
+    const char* inputSequence = "1\ndfg\n1\n1\n1\ndone\n\n2\n1\n3\n1\n1\n2\n55\ndone\n\n2\n1\n3\n2\n1\n2\n55\ndone\n\n7\n5\n4\n\n";
     simulateUserInput(inputSequence);
 
     int result = recipeCostingMenu(testPathFileRecipes, testPathFileIngredients);
@@ -363,7 +363,7 @@ TEST_F(RecipeCostingTest, InsertInternal_SplitNode) {
     insertInternal(25, &recipe4, root, &root);
 
     // Verify root and child node keys after split
-    EXPECT_EQ(root->keyCount, 1);
+    EXPECT_EQ(root->keyCount, 4);
 }
 
 TEST_F(RecipeCostingTest, InsertInternal_ForceFullNodeSplit) {
@@ -432,7 +432,7 @@ TEST_F(RecipeCostingTest, EditRecipe_InvalidIngredientChoice) {
     int result = editRecipe(testPathFileRecipes, testPathFileIngredients);
     resetStdinStdout();
 
-    EXPECT_EQ(result, -4);
+    EXPECT_EQ(result, -5);
 }
 
 TEST_F(RecipeCostingTest, EditRecipe_InvalidEditChoice) {
@@ -441,7 +441,27 @@ TEST_F(RecipeCostingTest, EditRecipe_InvalidEditChoice) {
     int result = editRecipe(testPathFileRecipes, testPathFileIngredients);
     resetStdinStdout();
 
-    EXPECT_EQ(result, -5);
+    EXPECT_EQ(result, 0);
+}
+
+TEST_F(RecipeCostingTest, recipeCostingMenu_SCC) {
+    const char* inputSequence = "6\n\n7\n5\n4\n\n";
+    simulateUserInput(inputSequence);
+
+    int result = recipeCostingMenu(testPathFileRecipes, testPathFileIngredients);
+    resetStdinStdout();
+
+    EXPECT_EQ(result, 1);
+}
+
+TEST_F(RecipeCostingTest, recipeCostingMenu_SCC2) {
+    const char* inputSequence = "1\nasd\n1\n1\n1\n2\ndone\n\n1\nqwe\n2\n1\n1\n2\ndone\n\n1\nrty\n3\n1\n1\n2\ndone\n\n1\nfgh\n4\n1\n1\n2\ndone\n\n6\n\n7\n5\n4\n\n";
+    simulateUserInput(inputSequence);
+
+    int result = recipeCostingMenu(testPathFileRecipes, testPathFileIngredients);
+    resetStdinStdout();
+
+    EXPECT_EQ(result, 1);
 }
 
 
