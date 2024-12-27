@@ -60,7 +60,7 @@ protected:
 			{5, "Ingredient5", 5.0}
 		};
 
-		Ingredient* head = NULL; // Baðlý liste baþlangýcý
+		Ingredient* head = NULL; 
 		for (int i = 0; i < 5; ++i) {
 			head = addIngredient(head, ingredients[i].name, ingredients[i].price, ingredientsFilePath);
 		}

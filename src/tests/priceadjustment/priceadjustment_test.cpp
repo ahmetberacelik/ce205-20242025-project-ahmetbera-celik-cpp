@@ -76,7 +76,6 @@ protected:
 TEST_F(PriceadjustmentTest, InvalidInput) {
 	createIngredients();
 	const char* inputSequence = "-1\n\n3\n";
-	//1\n1\n9\n1\n1\n1\n\n1\n1\n2\n2\n\n1\n1\n3\n3\n\n1\n1\n4\n4\n\n1\n1\n5\n5\n\n1\n1\n6\n6\n\n1\n1\n7\n7\n\n1\n1\n8\n8\n\n3\n
 	simulateUserInput(inputSequence);
 
 	int result = AdjustIngredientPriceMenu(testPathFileIngrednients);
@@ -115,7 +114,6 @@ TEST_F(PriceadjustmentTest, PriceAdjustmentInvalidIngredientId) {
 TEST_F(PriceadjustmentTest, PriceAdjustmentInvalidAndFirstAlgorithm) {
 	createIngredients();
 	const char* inputSequence = "1\n1\n9\n9\n1\n\n1\n1\n1\n1\n\n3\n";
-	//1\n1\n2\n2\n\n1\n1\n3\n3\n\n1\n1\n4\n4\n\n1\n1\n5\n5\n\n1\n1\n6\n6\n\n1\n1\n7\n7\n\n1\n1\n8\n8\n\n3\n
 	simulateUserInput(inputSequence);
 
 	int result = AdjustIngredientPriceMenu(testPathFileIngrednients);
@@ -126,7 +124,6 @@ TEST_F(PriceadjustmentTest, PriceAdjustmentInvalidAndFirstAlgorithm) {
 TEST_F(PriceadjustmentTest, PriceAdjustmentSecondAlgorithm) {
 	createIngredients();
 	const char* inputSequence = "1\n9\n2\n\n1\n1\n2\n2\n\n3\n";
-	//1\n1\n3\n3\n\n1\n1\n4\n4\n\n1\n1\n5\n5\n\n1\n1\n6\n6\n\n1\n1\n7\n7\n\n1\n1\n8\n8\n\n3\n
 	simulateUserInput(inputSequence);
 
 	int result = AdjustIngredientPriceMenu(testPathFileIngrednients);
@@ -137,7 +134,6 @@ TEST_F(PriceadjustmentTest, PriceAdjustmentSecondAlgorithm) {
 TEST_F(PriceadjustmentTest, PriceAdjustmentThirdAlgorithm) {
 	createIngredients();
 	const char* inputSequence = "1\n9\n3\n\n1\n1\n3\n3\n\n3\n";
-	//1\n1\n4\n4\n\n1\n1\n5\n5\n\n1\n1\n6\n6\n\n1\n1\n7\n7\n\n1\n1\n8\n8\n\n3\n
 	simulateUserInput(inputSequence);
 
 	int result = AdjustIngredientPriceMenu(testPathFileIngrednients);
@@ -148,7 +144,6 @@ TEST_F(PriceadjustmentTest, PriceAdjustmentThirdAlgorithm) {
 TEST_F(PriceadjustmentTest, PriceAdjustmentFourthAlgorithm) {
 	createIngredients();
 	const char* inputSequence = "1\n9\n4\n\n1\n1\n4\n4\n\n3\n";
-	//1\n1\n5\n5\n\n1\n1\n6\n6\n\n1\n1\n7\n7\n\n1\n1\n8\n8\n\n3\n
 	simulateUserInput(inputSequence);
 
 	int result = AdjustIngredientPriceMenu(testPathFileIngrednients);
@@ -159,7 +154,6 @@ TEST_F(PriceadjustmentTest, PriceAdjustmentFourthAlgorithm) {
 TEST_F(PriceadjustmentTest, PriceAdjustmentFifthAlgorithm) {
 	createIngredients();
 	const char* inputSequence = "1\n9\n5\n5.5\n1\n5\n\n3\n";
-	//1\n1\n6\n6\n\n1\n1\n7\n7\n\n1\n1\n8\n8\n\n3\n
 	simulateUserInput(inputSequence);
 
 	int result = AdjustIngredientPriceMenu(testPathFileIngrednients);
@@ -170,7 +164,6 @@ TEST_F(PriceadjustmentTest, PriceAdjustmentFifthAlgorithm) {
 TEST_F(PriceadjustmentTest, PriceAdjustmentSixthAlgorithm) {
 	createIngredients();
 	const char* inputSequence = "1\n9\n6\n\n1\n1\n6\n6\n\n3\n";
-	//1\n1\n7\n7\n\n1\n1\n8\n8\n\n3\n
 	simulateUserInput(inputSequence);
 
 	int result = AdjustIngredientPriceMenu(testPathFileIngrednients);
@@ -181,7 +174,6 @@ TEST_F(PriceadjustmentTest, PriceAdjustmentSixthAlgorithm) {
 TEST_F(PriceadjustmentTest, PriceAdjustmentSeventhAlgorithm) {
 	createIngredients();
 	const char* inputSequence = "1\n9\n7\n\n1\n1\n7\n7\n\n3\n";
-	//1\n1\n8\n8\n\n3\n
 	simulateUserInput(inputSequence);
 
 	int result = AdjustIngredientPriceMenu(testPathFileIngrednients);
@@ -192,7 +184,6 @@ TEST_F(PriceadjustmentTest, PriceAdjustmentSeventhAlgorithm) {
 TEST_F(PriceadjustmentTest, PriceAdjustmentEighthAlgorithm) {
 	createIngredients();
 	const char* inputSequence = "1\n1\n7\n7\n\n3\n";
-	//9\n8\n\n1\n
 	simulateUserInput(inputSequence);
 
 	int result = AdjustIngredientPriceMenu(testPathFileIngrednients);
