@@ -72,7 +72,7 @@ protected:
 
 		// Creating test recipes
 		const char* recipeNames[] = { "Recipe1", "Recipe2" };
-		int categories[] = { 1, 2 }; // Category ýds
+		int categories[] = { 1, 2 }; // Category ids
 		int testIngredients[][MAX_INGREDIENTS] = { {1, 2}, {3, 4} };
 		int ingredientCounts[] = { 2, 2 }; // Every recipe has 2 ingredients
 
