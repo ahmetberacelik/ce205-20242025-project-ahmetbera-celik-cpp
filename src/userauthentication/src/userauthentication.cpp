@@ -52,28 +52,26 @@ XORNode* createXORNode(User user) {
 XORNode* insertXORNode(XORNode* head, User user) {
 	XORNode* newNode = createXORNode(user);
 	if (!head) {
-		return newNode; // Eðer liste boþsa yeni düðüm baþ olur
+		return newNode; 
 	}
 
 	XORNode* current = head;
 	XORNode* prev = NULL;
 	XORNode* next;
 
-	// Listenin sonuna git
 	while (1) {
 		next = (XORNode*)((uintptr_t)prev ^ (uintptr_t)current->xorPtr);
 		if (!next) {
-			break; // Son düðüme ulaþtýk
+			break; 
 		}
 		prev = current;
 		current = next;
 	}
 
-	// Yeni düðümü sona ekle
 	current->xorPtr = (XORNode*)((uintptr_t)prev ^ (uintptr_t)newNode);
 	newNode->xorPtr = current;
 
-	return head; // Baþ düðüm deðiþmiyor
+	return head; 
 }
 
 /**
@@ -322,7 +320,6 @@ int getNewUserId(User users[], int userCount) {
 	return maxId + 1; 
 }
 
-
 /**
  * @brief Registers a new user and saves to file.
  *
@@ -569,7 +566,7 @@ int userOperations(const char* pathFileIngredients, const char* pathFileRecipes)
  */
 int mainMenu(const char* pathFileUsers, const char* pathFileIngredients, const char* pathFileRecipes) {
 	int choice;
-	XORNode* userList = NULL; // Baþlatma
+	XORNode* userList = NULL; 
 
 	while (1) {
 		clearScreen();
