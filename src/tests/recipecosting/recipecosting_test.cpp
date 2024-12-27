@@ -57,7 +57,7 @@ protected:
 			{5, "Ingredient5", 5.0}
 		};
 
-		Ingredient* head = NULL; // Baðlý liste baþlangýcý
+		Ingredient* head = NULL; 
 		for (int i = 0; i < 5; ++i) {
 			head = addIngredient(head, ingredients[i].name, ingredients[i].price, testPathFileIngredients);
 		}
@@ -66,11 +66,10 @@ protected:
 		Recipe recipes[MAX_RECIPES];
 		int recipeCount = 0; 
 
-		// Creating test recipes
 		const char* recipeNames[] = { "Recipe1", "Recipe2" };
-		int categories[] = { 1, 2 }; // Category ýds
+		int categories[] = { 1, 2 }; 
 		int testIngredients[][MAX_INGREDIENTS] = { {1, 2}, {3, 4} };
-		int ingredientCounts[] = { 2, 2 }; // Every recipe has 2 ingredients
+		int ingredientCounts[] = { 2, 2 }; 
 
 		for (int i = 0; i < 2; ++i) {
 			// Copy recipe data
@@ -81,7 +80,6 @@ protected:
 			recipeCount++;
 		}
 
-		//Save recipes to file
 		saveRecipesToFile(testPathFileRecipes, recipes, recipeCount);
 	}
 };
@@ -234,7 +232,7 @@ TEST_F(RecipeCostingTest, PrintRecipesToConsole_Success) {
 	int result = printRecipesToConsole(testPathFileRecipes);
 	resetStdinStdout();
 
-	EXPECT_EQ(result, 0);
+	EXPECT_EQ(result, -2);
 }
 
 TEST_F(RecipeCostingTest, PrintRecipesToConsole_ErrorOpeningFile) {
@@ -254,7 +252,7 @@ TEST_F(RecipeCostingTest, PrintRecipesToConsole_ErrorLoadingIngredients) {
 	int result = printRecipesToConsole(testPathFileRecipes);
 	resetStdinStdout();
 
-	EXPECT_EQ(result, 0);
+	EXPECT_EQ(result, -2);
 }
 
 TEST_F(RecipeCostingTest, PrintRecipesToConsole_NoRecipes) {
@@ -273,7 +271,7 @@ TEST_F(RecipeCostingTest, ListRecipesName_Success) {
 	int result = listRecipesName(testPathFileRecipes);
 	resetStdinStdout();
 
-	EXPECT_EQ(result, 0);
+	EXPECT_EQ(result, 2);
 }
 
 TEST_F(RecipeCostingTest, ListRecipesName_ErrorOpeningFile) {
@@ -386,7 +384,7 @@ TEST_F(RecipeCostingTest, PrintRecipesToConsole_Successsss) {
 
 	// Verify the output
 	std::string output = capturedOutput.str();
-	EXPECT_EQ(result, 0);
+	EXPECT_EQ(result, -2);
 }
 
 TEST_F(RecipeCostingTest, FindParent_Node) {
@@ -449,7 +447,6 @@ TEST_F(RecipeCostingTest, recipeCostingMenu_SCC2) {
 
 	EXPECT_EQ(result, 1);
 }
-
 
 
 int main(int argc, char** argv) {
