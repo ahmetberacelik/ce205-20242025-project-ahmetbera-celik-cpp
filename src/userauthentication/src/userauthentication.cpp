@@ -26,6 +26,173 @@
 User loggedUser;
 
 /**
+ * @brief Creates a new XOR node with the given user data.
+ *
+ * @param user User data to store in the node.
+ * @return Pointer to the newly created XOR node.
+ */
+XORNode* createXORNode(User user) {
+	XORNode* newNode = (XORNode*)malloc(sizeof(XORNode));
+	if (!newNode) {
+		printf("Memory allocation failed.\n");
+		exit(EXIT_FAILURE);
+	}
+	newNode->user = user;
+	newNode->xorPtr = NULL;
+	return newNode;
+}
+
+/**
+ * @brief Inserts a user into the XOR doubly linked list.
+ *
+ * @param head Pointer to the head of the XOR list.
+ * @param user User data to insert.
+ * @return Pointer to the updated head of the XOR list.
+ */
+XORNode* insertXORNode(XORNode* head, User user) {
+	XORNode* newNode = createXORNode(user);
+	if (!head) {
+		return newNode; // Eðer liste boþsa yeni düðüm baþ olur
+	}
+
+	XORNode* current = head;
+	XORNode* prev = NULL;
+	XORNode* next;
+
+	// Listenin sonuna git
+	while (1) {
+		next = (XORNode*)((uintptr_t)prev ^ (uintptr_t)current->xorPtr);
+		if (!next) {
+			break; // Son düðüme ulaþtýk
+		}
+		prev = current;
+		current = next;
+	}
+
+	// Yeni düðümü sona ekle
+	current->xorPtr = (XORNode*)((uintptr_t)prev ^ (uintptr_t)newNode);
+	newNode->xorPtr = current;
+
+	return head; // Baþ düðüm deðiþmiyor
+}
+
+/**
+ * @brief Displays all users stored in the XOR doubly linked list, allowing navigation.
+ *
+ * @param head Pointer to the head of the XOR list.
+ */
+void viewUsers(const XORNode* head) {
+	if (!head) {
+		printf("No users available to display.\n");
+		return;
+	}
+
+	const XORNode* current = head;
+	const XORNode* prev = NULL;
+	const XORNode* next;
+	int choice;
+
+	while (1) {
+		clearScreen();
+		printf("+---------------------------------------+\n");
+		printf("|               USERS                   |\n");
+		printf("+---------------------------------------+\n");
+		printf("ID: %d\nName: %s %s\nEmail: %s\n", current->user.id, current->user.name, current->user.surname, current->user.email);
+		printf("+---------------------------------------+\n");
+		printf("1. Next\n2. Previous\n3. Exit\n");
+		printf("Enter your choice: ");
+
+		choice = getInput();
+		if (choice == -2) {
+			handleInputError();
+			enterToContinue();
+			continue;
+		}
+
+		switch (choice) {
+		case 1: // Move to the next node
+			next = (XORNode*)((uintptr_t)prev ^ (uintptr_t)current->xorPtr);
+			if (next) {
+				prev = current;
+				current = next;
+			}
+			else {
+				printf("You are at the last user.\n");
+				enterToContinue();
+			}
+			break;
+
+		case 2: // Move to the previous node
+			if (prev) {
+				next = (XORNode*)((uintptr_t)current ^ (uintptr_t)prev->xorPtr);
+				current = prev;
+				prev = next;
+			}
+			else {
+				printf("You are at the first user.\n");
+				enterToContinue();
+			}
+			break;
+
+		case 3: // Exit
+			printf("Exiting user view...\n");
+			return;
+
+		default:
+			printf("Invalid choice. Please try again.\n");
+			enterToContinue();
+			break;
+		}
+	}
+}
+
+/**
+ * @brief Loads users from a file and constructs an XOR doubly linked list.
+ *
+ * @param pathFileUsers Path to the file containing user data.
+ * @return Pointer to the head of the XOR list.
+ */
+XORNode* loadUsersIntoXORList(const char* pathFileUsers) {
+	FILE* file = fopen(pathFileUsers, "rb");
+	if (!file) {
+		printf("Failed to open user file.\n");
+		return NULL;
+	}
+
+	int userCount = 0;
+	fread(&userCount, sizeof(int), 1, file);
+
+	XORNode* head = NULL;
+	User tempUser;
+
+	for (int i = 0; i < userCount; ++i) {
+		fread(&tempUser, sizeof(User), 1, file);
+		head = insertXORNode(head, tempUser);
+	}
+
+	fclose(file);
+	return head;
+}
+
+/**
+ * @brief Frees the memory allocated for the XOR doubly linked list.
+ *
+ * @param head Pointer to the head of the XOR list.
+ */
+void freeXORList(XORNode* head) {
+	XORNode* current = head;
+	XORNode* prev = NULL;
+	XORNode* next;
+
+	while (current) {
+		next = (XORNode*)((uintptr_t)prev ^ (uintptr_t)current->xorPtr);
+		free(current);
+		prev = current;
+		current = next;
+	}
+}
+
+/**
  * @brief Clears the console screen.
  */
 void clearScreen() {
@@ -93,6 +260,7 @@ int printMainMenu() {
 	printf("| 2. Register                           |\n");
 	printf("| 3. Guest Operations                   |\n");
 	printf("| 4. Exit Program                       |\n");
+	printf("| 5. View Users (ForAdmins)             |\n");
 	printf("+---------------------------------------+\n");
 	printf("\nPlease enter a number to select: ");
 	return 1;
@@ -143,13 +311,17 @@ int printGuestMenu() {
  * @return A new unique user ID.
  */
 int getNewUserId(User users[], int userCount) {
-	if (userCount == 0)
-		return 1;
+	int maxId = 0;
 
-	int maxId = users[0].id;
+	for (int i = 0; i < userCount; ++i) {
+		if (users[i].id > maxId) {
+			maxId = users[i].id;
+		}
+	}
 
-	return maxId + 1;
+	return maxId + 1; 
 }
+
 
 /**
  * @brief Registers a new user and saves to file.
@@ -397,6 +569,7 @@ int userOperations(const char* pathFileIngredients, const char* pathFileRecipes)
  */
 int mainMenu(const char* pathFileUsers, const char* pathFileIngredients, const char* pathFileRecipes) {
 	int choice;
+	XORNode* userList = NULL; // Baþlatma
 
 	while (1) {
 		clearScreen();
@@ -430,11 +603,24 @@ int mainMenu(const char* pathFileUsers, const char* pathFileIngredients, const c
 			printf("Exit Program\n");
 			return 0;
 
+		case 5:
+			clearScreen();
+			userList = loadUsersIntoXORList(pathFileUsers);
+			if (!userList) {
+				printf("No users found to display.\n");
+				enterToContinue();
+			}
+			else {
+				viewUsers(userList);
+				freeXORList(userList);
+				userList = NULL;
+			}
+			break;
+
 		default:
 			printf("Invalid choice. Please try again.\n");
 			enterToContinue();
 			break;
 		}
 	}
-
 }
