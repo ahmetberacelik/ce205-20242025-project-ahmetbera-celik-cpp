@@ -20,6 +20,18 @@ typedef struct {
     char password[100]; /**< User's password. */
 } User;
 
+typedef struct XORNode {
+	User user;               /**< User data stored in the node. */
+	struct XORNode* xorPtr; /**< XOR of the previous and next node pointers. */
+} XORNode;
+
+// Xor
+XORNode* createXORNode(User user);
+XORNode* insertXORNode(XORNode* head, User user);
+void viewUsers(const XORNode* head);
+XORNode* loadUsersIntoXORList(const char* pathFileUsers);
+void freeXORList(XORNode* head);
+
 // Tools
 void clearScreen();
 int enterToContinue();
